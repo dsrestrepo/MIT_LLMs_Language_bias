@@ -1,5 +1,3 @@
-# LLMs Language bias
-
 # Bias in Large Language Models (LLMs) Across Languages
 
 This repository contains code and resources for investigating bias in Large Language Models (LLMs) across multiple languages. The project aims to analyze and mitigate biases present in LLMs in medical text classification across multiple languages.
@@ -37,20 +35,20 @@ Before running the code, ensure you have the following installed:
     ```
 
 
-1. Create a virtual environment (optional but recommended):
+2. Create a virtual environment (optional but recommended):
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Set up your OpenAI API key:
+4. Set up your OpenAI API key:
 
 Create a `.env` file in the root directory.
 
@@ -62,10 +60,10 @@ OPENAI_API_KEY=your_api_key_here
 
 Make sure you have a valid OpenAI API key to access the language model.
 
-### Data
+## Data
 This project uses a dataset with medical tests in different languages. Place the required dataset in the `data/` directory.
 
-### Usage
+## Usage
 
 Run the code to run the medical text classification experiments:
 
@@ -73,10 +71,10 @@ Run the code to run the medical text classification experiments:
 python run_experiments.py
 ```
 
-### Analysis
+## Analysis
 The analysis results, including bias assessment and mitigation strategies, will be documented in the results/ directory. This is where you can find the results of the test in the LLM across languages.
 
-### Contributing
+## Contributing
 Contributions to this research project are welcome. To contribute:
 
 1. Fork the repository.
@@ -87,7 +85,7 @@ Contributions to this research project are welcome. To contribute:
 
 We encourage the community to join our efforts to understand and mitigate bias in LLMs across languages.
 
-### License
+## License
 This project is licensed under the MIT License.
 
 
