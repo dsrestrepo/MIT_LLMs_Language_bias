@@ -65,11 +65,24 @@ This project uses a dataset with medical tests in different languages. Place the
 
 ## Usage
 
-Run the code to run the medical text classification experiments:
+Run main.py from the command line with the desired options. Here's an example command:
 
 ```bash
-python run_experiments.py
+python main.py --csv_file data/YourMedicalTestQuestions.csv --model gpt-3.5-turbo --temperature 0.5 --n_repetitions 3 --reasoning --languages english portuguese french
 ```
+
+The script accepts the following arguments:
+
+--csv_file: Specify the path to the CSV file containing your medical test questions.
+--model: Choose the GPT model to use (e.g., gpt-3.5-turbo or gpt-4).
+--temperature: Set the temperature parameter for text generation (default is 0.0).
+--n_repetitions: Define the number of times each question will be asked to the model. This is useful to measure model's consistency.
+--reasoning: Enable reasoning mode to include explanations for responses. If this argument is not provided, the script will only generate responses. This argument increases the number of tokens used and may result in higher costs.
+--languages: Provide a list of languages to process the questions (space-separated). **The name of the questions should match with the column names containing the questions in the CSV file**.
+
+The script will process the questions, generate responses, and save the results in a CSV file.
+
+Alternatively, you can run the jupyter notebook `main.ipynb` to run the code.
 
 ## Analysis
 The analysis results, including bias assessment and mitigation strategies, will be documented in the results/ directory. This is where you can find the results of the test in the LLM across languages.
