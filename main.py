@@ -1,4 +1,5 @@
 from src.GPT_Language_Evaluation import gpt_language_evaluation
+from src.data_analysis import run_analysis
 
 import argparse
 
@@ -22,7 +23,9 @@ def main():
     LANGUAGES = args.languages
 
     gpt_language_evaluation(path=PATH, model=MODEL, temperature=TEMPERATURE, n_repetitions=N_REPETITIONS, reasoning=REASONING, languages=LANGUAGES)
-
+    
+    TEMPERATURE = str(TEMPERATURE).replace('.', '_')
+    run_analysis(model=MODEL, temperature=TEMPERATURE, n_repetitions=N_REPETITIONS, languages=LANGUAGES)
 
 if __name__ == "__main__":
     main()
