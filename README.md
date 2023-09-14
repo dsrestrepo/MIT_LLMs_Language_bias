@@ -30,8 +30,8 @@ Before running the code, ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/dsrestrepo/LLMs_Language_bias.git
-   cd LLMs_Language_bias
+   git clone https://github.com/dsrestrepo/MIT_LLMs_Language_bias.git
+   cd MIT_LLMs_Language_bias
     ```
 
 
