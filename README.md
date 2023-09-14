@@ -84,6 +84,9 @@ The script will process the questions, generate responses, and save the results 
 
 Alternatively, you can run the jupyter notebook `main.ipynb` to run the code.
 
+We also provide a more customizable option using the class GPT. You can import the class and use it to generate responses from the model, change the prompt, and more. See the file `customized_main.ipynb` for an example.
+
+
 ## Analysis
 The analysis results, including bias assessment and mitigation strategies, will be documented in the results/ directory. This is where you can find the results of the test in the LLM across languages.
 
