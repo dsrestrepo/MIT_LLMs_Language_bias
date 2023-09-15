@@ -31,13 +31,14 @@ def clean_responses(df, languages, n_repetitions):
             for n in range(n_repetitions):
                 df[f'responses_{language}_{n}'] = df[f'responses_{language}_{n}'].str.lower()
                 df[f'responses_{language}_{n}'] = df[f'responses_{language}_{n}'].apply(get_response)
+    
     return df
 
 
 def get_df(model, temperature, n_repetitions, languages):
     ### Read the csv file with the responses
     if n_repetitions > 1:
-        df = pd.read_csv(f"responses/{model}_Temperature{temperature}_repetitions{n_repetitions}.csv")
+        df = pd.read_csv(f"responses/{model}_Temperature{temperature}_{n_repetitions}Repetitions.csv")
     else:
         df = pd.read_csv(f"responses/{model}_Temperature{temperature}.csv")
 
@@ -69,18 +70,20 @@ def calculate_most_common_and_ci(row):
 
     return mode, p_value, ratio
  
-def get_mode_responses(df, languages, n_repetitions):
+def get_mode_responses(df, languages, n_repetitions, model, temperature):
     for language in languages:
-        print(language)
         cols = [f'responses_{language}_{n}' for n in range(n_repetitions)]
-        print(cols)
         # Calculate the most common value and confidence interval for each row
-        df['responses_{language}'], df['P-value_{language}'], df['ratio_{language}'] = zip(*df[cols].apply(calculate_most_common_and_ci, axis=1))
+        df[f'responses_{language}'], df[f'P-value_{language}'], df[f'ratio_{language}'] = zip(*df[cols].apply(calculate_most_common_and_ci, axis=1))
+    
+    df.to_csv(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/df_clean_{model}.csv', index=False)
     
     return df
 
 ### Data Analysis
 def generate_summary_df(df, languages, model, temperature, n_repetitions):
+
+
     # Calculate the matches between 'answer' and 'responses'
     for language in languages:
         df[f'match_{language}'] = df['answer'] == df[f'responses_{language}']
@@ -98,10 +101,7 @@ def generate_summary_df(df, languages, model, temperature, n_repetitions):
         os.makedirs(f'results')
     if not os.path.exists(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}'):
         os.makedirs(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}')
-    
     matches_by_test.to_csv(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_results_{model}.csv', index=False)
-
-    print(matches_by_test)
     
     return matches_by_test
 
@@ -217,7 +217,7 @@ def run_analysis(model, temperature, n_repetitions, languages):
 
     # Data Analysis
     if n_repetitions > 1:
-        df = get_mode_responses(df, languages, n_repetitions)
+        df = get_mode_responses(df, languages, n_repetitions, model, temperature)
 
     matches_by_test = generate_summary_df(df, languages, model, temperature, n_repetitions)
 

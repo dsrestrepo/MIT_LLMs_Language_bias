@@ -139,12 +139,17 @@ class GPT:
         
         messages = self.generate_question(prompt)
 
-        response = openai.ChatCompletion.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature, 
-            max_tokens=self.max_tokens,
-        )
+        try:        
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                messages=messages,
+                temperature=self.temperature, 
+                max_tokens=self.max_tokens,
+                request_timeout=10
+            )
+        except:
+            response = self.get_completion_from_messages(prompt)
+            return response
 
         response = response.choices[0].message["content"]
 

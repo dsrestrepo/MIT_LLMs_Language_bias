@@ -13,14 +13,19 @@ def get_completion_from_messages(messages,
                                  model="gpt-3.5-turbo", 
                                  temperature=0, 
                                  max_tokens=500):
-    
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=temperature, 
-        max_tokens=max_tokens,
-    )
-    
+
+    try:        
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=messages,
+            temperature=temperature, 
+            max_tokens=max_tokens,
+            request_timeout=10
+        )
+    except:
+        response = get_completion_from_messages(messages,model=model, temperature=temperature, max_tokens=max_tokens)
+        return response
+
     return response.choices[0].message["content"]
 
 #### Template for the Questions
