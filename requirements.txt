@@ -6,3 +6,4 @@ python-dotenv==1.0.0
 scipy==1.11.2
 seaborn==0.12.2
 statsmodels==0.14.0
+llama_cpp_python==0.2.11
