@@ -2,14 +2,7 @@
 ## Setup
 #### Load the API key and libaries.
 import os
-<<<<<<< HEAD
 import re
-=======
-import openai
-from dotenv import load_dotenv, find_dotenv
-_ = load_dotenv(find_dotenv()) # read local .env file
-openai.api_key  = os.environ['OPENAI_API_KEY']
->>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
 
 import json
 import pandas as pd
@@ -20,14 +13,11 @@ class GPT:
     # build the constructor
     def __init__(self, model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], path='data/Portuguese.csv', max_tokens=500):
         
-<<<<<<< HEAD
         import openai
         from dotenv import load_dotenv, find_dotenv
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
-        
-=======
->>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
+
         self.path = path
         self.model = model
         self.temperature = temperature
@@ -170,8 +160,6 @@ class GPT:
     
         return response
 
-
-<<<<<<< HEAD
 
         ### Questions from a csv file:
         df = pd.read_csv(self.path)
@@ -435,9 +423,6 @@ class LLAMA:
 
 
     def llm_language_evaluation(self, save=True):
-=======
-    def gpt_language_evaluation(self, save=True):
->>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
 
         ### Questions from a csv file:
         df = pd.read_csv(self.path)
