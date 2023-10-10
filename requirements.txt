@@ -1,0 +1,9 @@
+matplotlib==3.7.3
+openai==0.28.0
+pandas==2.1.0
+pipreqs==0.4.13
+python-dotenv==1.0.0
+scipy==1.11.2
+seaborn==0.12.2
+statsmodels==0.14.0
+llama_cpp_python==0.2.11
