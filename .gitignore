@@ -2,10 +2,7 @@
 *.csv
 !data/Portuguese_test.csv
 !results/*.csv
-<<<<<<< HEAD
 Models/*
-=======
->>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
 
 # macOS system files
 .DS_Store
