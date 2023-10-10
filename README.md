@@ -48,7 +48,11 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+<<<<<<< HEAD
 4. Set up your OpenAI API key (Not required for Llama models):
+=======
+4. Set up your OpenAI API key:
+>>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
 
 Create a `.env` file in the root directory.
 
@@ -74,7 +78,11 @@ python main.py --csv_file data/YourMedicalTestQuestions.csv --model gpt-3.5-turb
 The script accepts the following arguments:
 
 - --csv_file: Specify the path to the CSV file containing your medical test questions.
+<<<<<<< HEAD
 - --model: Choose the LLM to be used gpt-3.5-turbo, gpt-4, Llama-2-7b, Llama-2-13b, or Llama-2-70b.
+=======
+- --model: Choose the GPT model to use (e.g., gpt-3.5-turbo or gpt-4).
+>>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
 - --temperature: Set the temperature parameter for text generation (default is 0.0).
 - --n_repetitions: Define the number of times each question will be asked to the model. This is useful to measure model's consistency.
 - --reasoning: Enable reasoning mode to include explanations for responses. If this argument is not provided, the script will only generate responses. This argument increases the number of tokens used and may result in higher costs.
@@ -84,7 +92,11 @@ The script will process the questions, generate responses, and save the results 
 
 Alternatively, you can run the jupyter notebook `main.ipynb` to run the code.
 
+<<<<<<< HEAD
 We also provide a more customizable option using the class GPT and Llama. You can import the class and use it to generate responses from the model, change the prompt, and more. See the files `customized_gpt.ipynb` and `customized_llama.ipynb` for examples.
+=======
+We also provide a more customizable option using the class GPT. You can import the class and use it to generate responses from the model, change the prompt, and more. See the file `customized_main.ipynb` for an example.
+>>>>>>> 4afa84232110d64efc689ec97038a92f188426cb
 
 
 ## Analysis
