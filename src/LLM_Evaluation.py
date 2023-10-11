@@ -56,6 +56,7 @@ class GPT:
             keys: {", ".join(self.output_keys)}.
 
             Responses: {", ".join(self.responses)}.
+
             """
         else:
             self.system_message = f"""
@@ -70,6 +71,7 @@ class GPT:
             keys: {", ".join(self.output_keys)}.
 
             Responses: {", ".join(self.responses)}.
+            
             """
 
     # function to change the delimiter
@@ -207,11 +209,9 @@ class GPT:
 
         return df
 
-
-
     
-
-# Create a class to handle the GPT API
+    
+# Create a class to handle the LLAMA 2
 class LLAMA:
     # build the constructor
     def __init__(self, model='Llama-2-7b', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], path='data/Portuguese.csv', max_tokens=500):
@@ -260,7 +260,7 @@ class LLAMA:
             keys: {", ".join(self.output_keys)}. Make sure to always use the those keys, do not modify the keys.
             Be very careful with the resulting JSON file, make sure to add curly braces, quotes to define the strings, and commas to separate the items within the JSON.
 
-            Responses: {", ".join(f"'{self.responses}'")}.
+            Responses: {", ".join(self.responses)}.
             """
         else:
             self.system_message = f"""
@@ -274,7 +274,7 @@ class LLAMA:
             keys: {", ".join(self.output_keys)}. Make sure to always use the those keys, do not modify the keys.
             Be very careful with the resulting JSON file, make sure to add curly braces, quotes to define the strings, and commas to separate the items within the JSON.
 
-            Responses: {", ".join(f"'{self.responses}'")}.
+            Responses: {", ".join(self.responses)}.
             """
     def download_and_rename(self, url, filename):
         """Downloads a file from the given URL and renames it to the given new file name.

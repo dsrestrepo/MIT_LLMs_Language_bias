@@ -160,6 +160,71 @@ def generate_question(question, LANGUAGES, REASONING, Responses=['A', 'B', 'C', 
     
     return messages
 
+#### Template for the Questions
+def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B', 'C', 'D']):
+    
+    delimiter = "####"
+    
+    out_template = ""
+    
+    if REASONING:
+        output_keys = ['response', 'reasoning']
+    else:
+        output_keys = ['response']
+        
+    for response in Responses:
+        response_dict = {key: f'something describing {key}' for key in output_keys}
+        response_dict[keys[0]] = response
+        response_str = ', '.join([f"'{k}': '{v}'" for k, v in response_dict.items()])
+        out_template += f"If response is {response}: {{ {response_str} }}\n"
+
+    languages_text = ", ".join(LANGUAGES)
+
+    if REASONING:
+        system_message = f"""
+        You will be provided with medical queries in this languages: {languages_text}. \
+        The medical query will be delimited with \
+        {delimiter} characters.
+        Each question will have {len(Responses)} possible answer options.\
+        provide the letter with the answer and a short sentence answering why the answer was selected \
+
+        Provide your output in json format with the \
+        keys: response and reasoning.
+
+        Responses: {", ".join(Responses)}.
+
+        Template:
+        {out_template}
+        """
+    else:
+        system_message = f"""
+        You will be provided with medical queries in this languages: {languages_text}. \
+        The medical query will be delimited with \
+        {delimiter} characters.
+        Each question will have {len(Responses)} possible answer options.\
+        provide the letter with the answer.
+
+        Provide your output in json format with the \
+        key: response.
+
+        Responses: {", ".join(Responses)}.
+        
+        Template:
+        {out_template}
+        """
+
+    user_message = f"""/
+    {question}"""
+    
+    messages =  [  
+    {'role':'system', 
+     'content': system_message},    
+    {'role':'user', 
+     'content': f"{delimiter}{user_message}{delimiter}"},  
+    ] 
+    
+    return messages
+
 
 def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese']):
     
@@ -209,7 +274,14 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
             question = df[language][row]
             print('Question: ')
             print(question)
-            messages = generate_question(question, LANGUAGES, REASONING)
+            if 'gpt' in model: 
+                messages = generate_question(question, LANGUAGES, REASONING)
+            elif 'llama-2' in model:
+                messages = generate_question_llama(question, LANGUAGES, REASONING)
+            else:
+                print('Model should be a GPT or Llama-2 model')
+                return 0 
+            
 
             for n in range(N_REPETITIONS): 
                 print(f'Test #{n}: ')
