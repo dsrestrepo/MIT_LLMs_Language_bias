@@ -7,6 +7,9 @@ import os
 import openai
 from dotenv import load_dotenv, find_dotenv
 import argparse
+import re
+import subprocess
+
 
 ### Download LLAMA model:
 def download_and_rename(url, filename):
@@ -232,7 +235,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     if 'gpt' in model:
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
-    elif 'llama-2' in model:                
+    elif 'Llama-2' in model:                
         model_path = download_hugging_face_model(model_version=model)
         from llama_cpp import Llama
         llm = Llama(model_path=model_path)
@@ -276,7 +279,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
             print(question)
             if 'gpt' in model: 
                 messages = generate_question(question, LANGUAGES, REASONING)
-            elif 'llama-2' in model:
+            elif 'Llama-2' in model:
                 messages = generate_question_llama(question, LANGUAGES, REASONING)
             else:
                 print('Model should be a GPT or Llama-2 model')

@@ -7,6 +7,7 @@ import re
 import json
 import pandas as pd
 import argparse
+import subprocess
 
 # Create a class to handle the GPT API
 class GPT:
