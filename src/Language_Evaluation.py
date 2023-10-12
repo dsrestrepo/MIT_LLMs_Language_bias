@@ -87,16 +87,27 @@ def get_completion_from_messages_llama(messages,
     response = response['choices'][0]['message']["content"]        
 
     # Convert the string into a JSON object
+    # Due to some problems with Llama 2 generating JSON formats, the output requires more preprocessing than GPT.
     try:
         # Use regular expressions to extract JSON
         json_pattern = r'\{.*\}'  # Match everything between '{' and '}'
         match = re.search(json_pattern, response, re.DOTALL)
         response = match.group()
+        
 
         # Define a regex pattern to identify unquoted string values
         pattern = r'("[^"]*":\s*)([A-Za-z_][A-Za-z0-9_]*)'
         # Use a lambda function to add quotes to unquoted string values
         response = re.sub(pattern, lambda m: f'{m.group(1)}"{m.group(2)}"', response)
+        
+        
+        if not reasoning:
+            # Convert from {'response': 'A' ) some text without quotes} to {'response': 'A'}
+            # Use regular expression to extract the letter and surrounding characters
+            match = re.search(r'"response": "([A-Da-d][^\"]*)"', response)
+
+            if match:
+                response = f'{{{match.group(0)}}}'
 
         # Convert
         response = json.loads(response)
@@ -192,14 +203,14 @@ def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B',
         The medical query will be delimited with \
         {delimiter} characters.
         Each question will have {len(Responses)} possible answer options.\
-        provide the letter with the answer and a short sentence answering why the answer was selected \
+        provide just the letter with the answer and a short sentence answering why the answer was selected.
 
         Provide your output in json format with the \
         keys: response and reasoning. Make sure to always use the those keys, do not modify the keys. 
-        Be very careful with the resulting JSON file, make sure to add curly braces, quotes to define the strings, and commas to separate the items within the JSON.
-
-        Responses: {", ".join(Responses)}.
-
+        
+        Response option: {", ".join(Responses)}.
+        
+        The output shoulb be: {{"response": "Response option", "", ""}}
         """
     else:
         system_message = f"""
@@ -207,13 +218,14 @@ def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B',
         The medical query will be delimited with \
         {delimiter} characters.
         Each question will have {len(Responses)} possible answer options.\
-        provide the letter with the answer.
+        provide just the letter with the answer.
 
         Provide your output in json format with the \
         key: response. Make sure to always use the that key, do not modify the key. 
-        Be very careful with the resulting JSON file, make sure to add curly braces, quotes to define the strings, and commas to separate the items within the JSON.
 
-        Responses: {", ".join(Responses)}.
+        Response option: {", ".join(Responses)}.
+        
+        The output shoulb be: {{"response": "Response option"}}
 
         """
 
