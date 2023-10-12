@@ -192,12 +192,11 @@ def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B',
         provide the letter with the answer and a short sentence answering why the answer was selected \
 
         Provide your output in json format with the \
-        keys: response and reasoning.
+        keys: response and reasoning. Make sure to always use the those keys, do not modify the keys. 
+        Be very careful with the resulting JSON file, make sure to add curly braces, quotes to define the strings, and commas to separate the items within the JSON.
 
         Responses: {", ".join(Responses)}.
 
-        Template:
-        {out_template}
         """
     else:
         system_message = f"""
@@ -208,12 +207,11 @@ def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B',
         provide the letter with the answer.
 
         Provide your output in json format with the \
-        key: response.
+        key: response. Make sure to always use the that key, do not modify the key. 
+        Be very careful with the resulting JSON file, make sure to add curly braces, quotes to define the strings, and commas to separate the items within the JSON.
 
         Responses: {", ".join(Responses)}.
-        
-        Template:
-        {out_template}
+
         """
 
     user_message = f"""/
