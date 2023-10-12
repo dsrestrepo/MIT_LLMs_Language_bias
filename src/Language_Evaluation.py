@@ -199,34 +199,37 @@ def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B',
 
     if REASONING:
         system_message = f"""
-        You will be provided with medical queries in this languages: {languages_text}. \
-        The medical query will be delimited with \
-        {delimiter} characters.
-        Each question will have {len(Responses)} possible answer options.\
-        provide just the letter with the answer and a short sentence answering why the answer was selected.
+You will be provided with medical queries in this languages: {languages_text}. \
+The medical query will be delimited with \
+{delimiter} characters.
+Each question will have {len(Responses)} possible answer options.\
+provide just the letter with the answer and a short sentence answering why the answer was selected.
 
-        Provide your output in json format with the \
-        keys: response and reasoning. Make sure to always use the those keys, do not modify the keys. 
-        
-        Response option: {", ".join(Responses)}.
-        
-        The output shoulb be: {{"response": "Response option", "", ""}}
+Provide your output in json format with the \
+keys: response and reasoning. Make sure to always use the those keys, do not modify the keys. 
+
+Response option: {", ".join(Responses)}.
+
+Always use the JSON format.
+
+The output shoulb be: {{"response": "Response option", "", ""}}
         """
     else:
         system_message = f"""
-        You will be provided with medical queries in this languages: {languages_text}. \
-        The medical query will be delimited with \
-        {delimiter} characters.
-        Each question will have {len(Responses)} possible answer options.\
-        provide just the letter with the answer.
+You will be provided with medical queries in this languages: {languages_text}. \
+The medical query will be delimited with \
+{delimiter} characters.
+Each question will have {len(Responses)} possible answer options.\
+provide just the letter with the answer.
 
-        Provide your output in json format with the \
-        key: response. Make sure to always use the that key, do not modify the key. 
+Provide your output in json format with the \
+key: response. Make sure to always use the that key, do not modify the key. 
 
-        Response option: {", ".join(Responses)}.
-        
-        The output shoulb be: {{"response": "Response option"}}
+Response option: {", ".join(Responses)}.
 
+Always use the JSON format.
+
+The output shoulb be: {{"response": "Response option"}}
         """
 
     user_message = f"""/
