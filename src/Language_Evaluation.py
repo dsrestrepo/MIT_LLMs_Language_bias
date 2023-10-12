@@ -100,6 +100,9 @@ def get_completion_from_messages_llama(messages,
 
         # Convert
         response = json.loads(response)
+        
+        resp = response['response']
+        
     except:
         print(f'Error converting respose to json: {response}')
         print('Generating new response...')
@@ -177,7 +180,7 @@ def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B',
         
     for response in Responses:
         response_dict = {key: f'something describing {key}' for key in output_keys}
-        response_dict[keys[0]] = response
+        response_dict[output_keys[0]] = response
         response_str = ', '.join([f"'{k}': '{v}'" for k, v in response_dict.items()])
         out_template += f"If response is {response}: {{ {response_str} }}\n"
 
@@ -291,7 +294,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                     response = get_completion_from_messages(messages, MODEL, TEMPERATURE)
                     # Convert the string into a JSON object
                     response = json.loads(response)
-                elif 'llama-2' in model:
+                elif 'Llama-2' in model:
                     response = get_completion_from_messages_llama(messages, llm, TEMPERATURE, reasoning=REASONING)
                 else:
                     print('Model should be a GPT or Llama-2 model')
