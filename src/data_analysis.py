@@ -75,6 +75,13 @@ def get_mode_responses(df, languages, n_repetitions, model, temperature):
         cols = [f'responses_{language}_{n}' for n in range(n_repetitions)]
         # Calculate the most common value and confidence interval for each row
         df[f'responses_{language}'], df[f'P-value_{language}'], df[f'ratio_{language}'] = zip(*df[cols].apply(calculate_most_common_and_ci, axis=1))
+        
+    # Create folder to save the plots and the csv file if it does not exist
+    if not os.path.exists(f'results'):
+        os.makedirs(f'results')
+        
+    if not os.path.exists(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}'):
+        os.makedirs(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}')
     
     df.to_csv(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/df_clean_{model}.csv', index=False)
     
