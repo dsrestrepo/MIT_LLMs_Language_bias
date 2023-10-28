@@ -1,8 +1,9 @@
 # By now .csv files
 *.csv
 !data/Portuguese_test.csv
-!results/*.csv
+!results/**.csv
 Models/*
+
 
 # macOS system files
 .DS_Store
