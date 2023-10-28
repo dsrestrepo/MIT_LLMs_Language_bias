@@ -9,6 +9,37 @@ from collections import Counter
 import scipy.stats as stats
 
 
+# Define a dictionary to map Portuguese themes to English themes
+theme_mapping = {
+    'anatomia': 'anatomy',
+    'córnea': 'cornea',
+    'embriologia': 'embryology',
+    'farmacologia': 'pharmacology',
+    'genética': 'genetics',
+    'glaucoma': 'glaucoma',
+    'oncologia': 'oncology',
+    'refração': 'refraction',
+    'retina': 'retina',
+    'cirurgia refrativa': 'refractive surgery',
+    'cirurgia refrativva': 'refractive surgery',
+    'cristalino/catarata': 'lens/cataract',
+    'córnea/cristalino': 'cornea/lens',
+    'estrabismo': 'strabismus',
+    'farmacologia/glaucoma': 'pharmacology/glaucoma',
+    'glaucoma/uveíte': 'glaucoma/uveitis',
+    'lentes de contato': 'contact lenses',
+    'neuroftalmologia': 'neuro-ophthalmology',
+    'oncologia/plástica ocular': 'oncology/ocular plastic surgery',
+    'plástica ocular': 'ocular plastic surgery',
+    'refração/visão subnormal': 'refraction/low vision',
+    'retina/oncologia': 'retina/oncology',
+    'uveíte': 'uveitis',
+    'visão subnormal': 'low vision',
+    'óptica': 'optics',
+    'óptica/refração': 'optics/refraction'
+}
+
+
 ### Get Responses from text
 def get_response(response):
     options = {'a)': 'a', 'b)':'b', 'c)': 'c', 'd)':'d'}
@@ -95,6 +126,10 @@ def generate_summary_df(df, languages, model, temperature, n_repetitions):
         df[f'match_{language}'] = df['answer'] == df[f'responses_{language}']
 
     df['Total'] = True
+    
+    df['theme'] = df['theme'].str.lower().str.strip()
+    # Map the Portuguese themes to English themes for visualization
+    df['theme'] = df['theme'].map(theme_mapping)
 
     # Group by 'test', 'year', and 'theme' and calculate the count of matches
     aggregations = {f'match_{language}': 'sum' for language in languages}
@@ -124,7 +159,7 @@ def compare_total_matches(df, languages, model, temperature, n_repetitions):
     # Add labels to the bars
     for bar in bars:
         height = bar.get_height()
-        ax.annotate(f'{height}', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),
+        ax.annotate(f'{height}%', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),
                     textcoords="offset points", ha='center', va='bottom', fontsize=12)
 
     # Add titles and labels
@@ -145,7 +180,13 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
     aggregations['Total'] = 'sum'
 
     matches_by_test_group = matches_by_test.groupby('theme').agg(aggregations).reset_index()
-
+    
+    # Calculate the percentages for each language
+    for language in languages:
+        match_column = f'match_{language}'
+        matches_by_test_group[f'responses_{language} (%)'] = round((matches_by_test_group[match_column] / matches_by_test_group['Total']) * 100, 2)
+    matches_by_test_group.to_csv(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_by_theme_{model}.csv', index=False)
+    
     # Compare English and Portuguese matches by theme
     fig, ax = plt.subplots(figsize=(12, 8))
 
@@ -160,9 +201,10 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
     # Plot the matches per language
     for i, language in enumerate(languages):
         #ax.bar(bar_positions, matches_by_test_group[F'match_{language}'], width=bar_width, label=language)
+        values = (matches_by_test_group[f'match_{language}'] / matches_by_test_group['Total']) * 100
         ax.bar(
             [p + i * bar_width for p in bar_positions],
-            (matches_by_test_group[f'match_{language}']/matches_by_test_group['Total'])*100,
+            values,
             width=bar_width,
             label=language
         )
@@ -209,6 +251,7 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
             plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/correct_answers_{model}_{theme.replace("/", "-")}.png', bbox_inches='tight')
         plt.show()
 
+        
 def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetitions):
     
     ## Basic VS Clinical
@@ -240,12 +283,17 @@ def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetiti
     # Plot the matches per language
     for i, language in enumerate(languages):
         #ax.bar(bar_positions, matches_by_test_group[F'match_{language}'], width=bar_width, label=language)
+        values = round((matches_by_test_group[f'match_{language}'] / matches_by_test_group['Total']) * 100, 1)
         ax.bar(
             [p + i * bar_width for p in bar_positions],
             round((matches_by_test_group[f'match_{language}']/matches_by_test_group['Total'])*100, 1),
             width=bar_width,
             label=language
         )
+        # Annotate the values over the bars
+        for p, value in zip([p + i * bar_width for p in bar_positions], values):
+            ax.text(p, value, str(value) + "%", ha='center', va='bottom')
+
 
     # Customize the plot
     ax.set_xlabel('Theme')
