@@ -90,7 +90,6 @@ def get_mode_responses(df, languages, n_repetitions, model, temperature):
 ### Data Analysis
 def generate_summary_df(df, languages, model, temperature, n_repetitions):
 
-
     # Calculate the matches between 'answer' and 'responses'
     for language in languages:
         df[f'match_{language}'] = df['answer'] == df[f'responses_{language}']
@@ -117,7 +116,7 @@ def compare_total_matches(df, languages, model, temperature, n_repetitions):
     fig, ax = plt.subplots(figsize=(8, 6))
 
     # Plot the total matches
-    totals = [df[f'match_{language}'].sum() for language in languages]
+    totals = [round((df[f'match_{language}'].sum()/df[f'Total'].sum())*100, 1) for language in languages]
     colors = ['lightblue', 'salmon', 'seagreen', 'orange', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
     colors = colors[:len(languages)]
     bars = ax.bar(languages, totals, color=colors)
@@ -130,8 +129,8 @@ def compare_total_matches(df, languages, model, temperature, n_repetitions):
 
     # Add titles and labels
     plt.xlabel('Language')
-    plt.ylabel('Total Matches')
-    plt.title('Total Correct Answers by Language')
+    plt.ylabel('Total Matches (%)')
+    plt.title('Total Correct Answers by Language (%)')
 
     # Customize the appearance
     ax.spines['top'].set_visible(False)
@@ -163,15 +162,15 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
         #ax.bar(bar_positions, matches_by_test_group[F'match_{language}'], width=bar_width, label=language)
         ax.bar(
             [p + i * bar_width for p in bar_positions],
-            matches_by_test_group[f'match_{language}'],
+            (matches_by_test_group[f'match_{language}']/matches_by_test_group['Total'])*100,
             width=bar_width,
             label=language
         )
 
     # Customize the plot
     ax.set_xlabel('Theme')
-    ax.set_ylabel('Total Correct Answers Per Language')
-    ax.set_title('Total Correct Answers by Theme')
+    ax.set_ylabel('Total Correct Answers (%)')
+    ax.set_title('Total Correct Answers by Theme (%)')
     ax.set_xticks([p + (bar_width * (len(languages) - 1) / 2) for p in bar_positions])
     ax.set_xticklabels(matches_by_test_group['theme'], rotation=45, ha='right')
 
@@ -195,14 +194,14 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
 
         # Plot the ratio of matches for each theme
         plt.figure(figsize=(6, 6))
-        totals = [df_theme[f'match_{language}'].sum() for language in languages]
+        totals = [df_theme[f'{language}_ratio_percentage'].sum() for language in languages]
         colors = ['blue', 'green', 'red', 'orange', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
         colors = colors[:len(languages)]
         
         plt.bar(languages, totals)
         plt.xlabel('Language')
-        plt.ylabel('Correct Answers')
-        plt.title(f'Correct Answers By Language in Theme: {theme}')
+        plt.ylabel('Correct Answers (%)')
+        plt.title(f'Correct Answers (%) By Language in Theme: {theme}')
         
         if '/' not in theme:
             plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/correct_answers_{model}_{theme}.png', bbox_inches='tight')
@@ -210,7 +209,60 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
             plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/correct_answers_{model}_{theme.replace("/", "-")}.png', bbox_inches='tight')
         plt.show()
 
+def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetitions):
+    
+    ## Basic VS Clinical
+    test_labels = {
+    "Teórica I": "Basic Science",
+    "Teórica II": "Clinical/Surgical"
+    }
 
+    # Map the 'test' column to their labels
+    matches_by_test['test_labels'] = matches_by_test['test'].map(test_labels)
+
+    # Group the data by 'test_labels' and calculate the sum of 'Total' for each group
+    aggregations = {f'match_{language}': 'sum' for language in languages}
+    aggregations['Total'] = 'sum'
+
+    matches_by_test_group = matches_by_test.groupby('test_labels').agg(aggregations).reset_index()
+    
+    # Compare English and Portuguese matches by theme
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Set the bar width
+    bar_width = 0.3
+
+    # Calculate the positions for the bars
+    bar_positions = range(len(matches_by_test_group['test_labels']))
+    bar_positions_language = [p + i * bar_width for p in bar_positions for i, _ in enumerate(languages)]
+
+
+    # Plot the matches per language
+    for i, language in enumerate(languages):
+        #ax.bar(bar_positions, matches_by_test_group[F'match_{language}'], width=bar_width, label=language)
+        ax.bar(
+            [p + i * bar_width for p in bar_positions],
+            round((matches_by_test_group[f'match_{language}']/matches_by_test_group['Total'])*100, 1),
+            width=bar_width,
+            label=language
+        )
+
+    # Customize the plot
+    ax.set_xlabel('Theme')
+    ax.set_ylabel('Total Correct Answers (%)')
+    ax.set_title('Total Correct Answers by Test Type (%)')
+    ax.set_xticks([p + (bar_width * (len(languages) - 1) / 2) for p in bar_positions])
+    ax.set_xticklabels(matches_by_test_group['test_labels'], rotation=45, ha='right')
+
+    # Add a legend
+    plt.legend(title='Language', loc='lower right')
+
+    plt.tight_layout()
+
+    plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_by_type_{model}.png', bbox_inches='tight')
+    plt.show()
+    
+        
 
 def run_analysis(model, temperature, n_repetitions, languages):
     
@@ -232,6 +284,8 @@ def run_analysis(model, temperature, n_repetitions, languages):
     compare_total_matches(df, languages, model, temperature, n_repetitions)
 
     compare_total_matches_by_group(matches_by_test, languages, model, temperature, n_repetitions)
+    
+    basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetitions)
 
     
     
