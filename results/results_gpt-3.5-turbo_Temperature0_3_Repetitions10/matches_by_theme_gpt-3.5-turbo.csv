@@ -1,0 +1,26 @@
+theme,match_english,match_portuguese,Total,responses_english (%),responses_portuguese (%)
+anatomy,7,9,21,33.33,42.86
+contact lenses,1,1,3,33.33,33.33
+cornea,6,5,10,60.0,50.0
+cornea/lens,1,1,1,100.0,100.0
+embryology,1,1,2,50.0,50.0
+genetics,0,1,2,0.0,50.0
+glaucoma,4,4,9,44.44,44.44
+glaucoma/uveitis,0,1,1,0.0,100.0
+lens/cataract,6,5,8,75.0,62.5
+low vision,1,1,1,100.0,100.0
+neuro-ophthalmology,3,3,7,42.86,42.86
+ocular plastic surgery,9,5,16,56.25,31.25
+oncology,0,1,1,0.0,100.0
+oncology/ocular plastic surgery,2,1,3,66.67,33.33
+optics,0,0,1,0.0,0.0
+optics/refraction,1,1,1,100.0,100.0
+pharmacology,4,4,9,44.44,44.44
+pharmacology/glaucoma,1,0,1,100.0,0.0
+refraction,13,9,31,41.94,29.03
+refraction/low vision,1,0,2,50.0,0.0
+refractive surgery,2,1,2,100.0,50.0
+retina,7,5,12,58.33,41.67
+retina/oncology,0,0,1,0.0,0.0
+strabismus,5,4,11,45.45,36.36
+uveitis,4,3,8,50.0,37.5
