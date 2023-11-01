@@ -70,6 +70,13 @@ def get_completion_from_messages(messages,
 
     return response.choices[0].message["content"]
 
+def get_completion_from_messages_hf(messages, 
+                                    model):
+    
+    response = model(messages)[0]['generated_text'].replace(messages, '')
+    
+    return {'response': response}
+
 #### Model Llama 2
 def get_completion_from_messages_llama(messages, 
                                  model, 
@@ -177,6 +184,25 @@ def generate_question(question, LANGUAGES, REASONING, Responses=['A', 'B', 'C', 
     
     return messages
 
+def generate_template_text_generation(question, LANGUAGES, Responses=['A', 'B', 'C', 'D']):
+    
+    delimiter = "####"
+
+    languages_text = ", ".join(LANGUAGES)
+
+    messages = f"""You will be provided with medical queries in this languages: {languages_text}. \
+    The medical query will be delimited with {delimiter} characters.
+    Each question will have {len(Responses)} possible answer options.Provide just the letter with the answer.
+
+    Responses: {", ".join(Responses)}.
+
+    Question:
+    {delimiter}{question}{delimiter}
+
+    The response is: """
+
+    return messages
+
 #### Template for the Questions
 def generate_question_llama(question, LANGUAGES, REASONING, Responses=['A', 'B', 'C', 'D']):
     
@@ -255,6 +281,13 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
         model_path = download_hugging_face_model(model_version=model)
         from llama_cpp import Llama
         llm = Llama(model_path=model_path)
+    elif 'bloom':
+        from transformers import pipeline
+        llm = pipeline(
+            task="text-generation", 
+            model=model,
+            model_kwargs={"temperature": temperature, "max_length": 5})
+        reasoning = False
     else:
         print('Model should be a GPT or Llama-2 model')
         return 0
@@ -297,10 +330,11 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                 messages = generate_question(question, LANGUAGES, REASONING)
             elif 'Llama-2' in model:
                 messages = generate_question_llama(question, LANGUAGES, REASONING)
+            elif 'bloom' in model:
+                messages = generate_template_text_generation(question, LANGUAGES)
             else:
                 print('Model should be a GPT or Llama-2 model')
                 return 0 
-            
 
             for n in range(N_REPETITIONS): 
                 print(f'Test #{n}: ')
@@ -311,6 +345,8 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                     response = json.loads(response)
                 elif 'Llama-2' in model:
                     response = get_completion_from_messages_llama(messages, llm, TEMPERATURE, reasoning=REASONING)
+                elif 'bloom' in model:
+                    response = get_completion_from_messages_hf(messages, llm)
                 else:
                     print('Model should be a GPT or Llama-2 model')
                     return 0

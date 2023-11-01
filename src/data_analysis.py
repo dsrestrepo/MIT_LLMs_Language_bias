@@ -7,6 +7,8 @@ import os
 
 from collections import Counter
 import scipy.stats as stats
+import pandas as pd
+from scipy.stats import chi2_contingency
 
 
 # Define a dictionary to map Portuguese themes to English themes
@@ -62,6 +64,10 @@ def clean_responses(df, languages, n_repetitions):
             for n in range(n_repetitions):
                 df[f'responses_{language}_{n}'] = df[f'responses_{language}_{n}'].str.lower()
                 df[f'responses_{language}_{n}'] = df[f'responses_{language}_{n}'].apply(get_response)
+    
+    df['theme'] = df['theme'].str.lower().str.strip()
+    # Map the Portuguese themes to English themes for visualization
+    df['theme'] = df['theme'].map(theme_mapping)
     
     return df
 
@@ -126,10 +132,6 @@ def generate_summary_df(df, languages, model, temperature, n_repetitions):
         df[f'match_{language}'] = df['answer'] == df[f'responses_{language}']
 
     df['Total'] = True
-    
-    df['theme'] = df['theme'].str.lower().str.strip()
-    # Map the Portuguese themes to English themes for visualization
-    df['theme'] = df['theme'].map(theme_mapping)
 
     # Group by 'test', 'year', and 'theme' and calculate the count of matches
     aggregations = {f'match_{language}': 'sum' for language in languages}
@@ -268,6 +270,7 @@ def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetiti
     aggregations['Total'] = 'sum'
 
     matches_by_test_group = matches_by_test.groupby('test_labels').agg(aggregations).reset_index()
+    print(matches_by_test_group)
     
     # Compare English and Portuguese matches by theme
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -325,6 +328,7 @@ def run_analysis(model, temperature, n_repetitions, languages):
     # Data Analysis
     if n_repetitions > 1:
         df = get_mode_responses(df, languages, n_repetitions, model, temperature)
+        
 
     matches_by_test = generate_summary_df(df, languages, model, temperature, n_repetitions)
 

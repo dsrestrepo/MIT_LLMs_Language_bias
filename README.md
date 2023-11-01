@@ -106,9 +106,6 @@ We encourage the community to join our efforts to understand and mitigate bias i
 ## License
 This project is licensed under the MIT License.
 
-
-In this updated README, the focus is on bias analysis in LLMs across languages. You can customize it further to include specific details about your data sources, analysis methodologies, and mitigation strategies related to bias in LLMs across different languages.
-
 ## Contact
 
 For any inquiries or questions regarding this project, please feel free to reach out:
