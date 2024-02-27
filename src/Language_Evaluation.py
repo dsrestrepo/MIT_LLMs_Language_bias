@@ -149,31 +149,29 @@ def generate_question(question, LANGUAGES, REASONING, Responses=['A', 'B', 'C', 
 
     if REASONING:
         system_message = f"""
-        You will be provided with medical queries in this languages: {languages_text}. \
-        The medical query will be delimited with \
-        {delimiter} characters.
-        Each question will have {len(Responses)} possible answer options.\
-        provide the letter with the answer and a short sentence answering why the answer was selected \
+You will be provided with medical queries in this languages: {languages_text}. \
+The medical query will be delimited with {delimiter} characters.
+Each question will have {len(Responses)} possible answer options.\
+provide the letter with the answer and a short sentence answering why the answer was selected \
 
-        Provide your output in json format with the \
-        keys: response and reasoning.
+Provide your output in json format with the \
+keys: response and reasoning.
 
-        Responses: {", ".join(Responses)}.
-
+Responses: {", ".join(Responses)}.
         """
     else:
         system_message = f"""
-        You will be provided with medical queries in this languages: {languages_text}. \
-        The medical query will be delimited with \
-        {delimiter} characters.
-        Each question will have {len(Responses)} possible answer options.\
-        provide the letter with the answer.
+You will be provided with medical queries in this languages: {languages_text}. \
+The medical query will be delimited with {delimiter} characters.
+Each question will have {len(Responses)} possible answer options.\
+Provide only the letter with the response.
 
-        Provide your output in json format with the \
-        key: response.
+Provide your output in json format with: 
+the key: response.
 
-        Responses: {", ".join(Responses)}.
+Responses: {", ".join(Responses)}.
 
+E.g. if response is 'a', the output should be: {{"response" : "a"}}   
         """
 
     user_message = f"""/
