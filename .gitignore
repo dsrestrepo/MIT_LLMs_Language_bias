@@ -1,5 +1,4 @@
 # By now .csv files
-*.csv
 !data/Portuguese_test.csv
 !results/**/*.csv
 Models/*

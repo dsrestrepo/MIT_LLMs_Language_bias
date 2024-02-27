@@ -8,6 +8,7 @@ import json
 import pandas as pd
 import argparse
 import subprocess
+import time
 
 # Create a class to handle the GPT API
 class GPT:
@@ -46,34 +47,35 @@ class GPT:
 
         if self.reasoning:
             self.system_message = f"""
-            You will be provided with medical queries in this languages: {", ".join(self.languages)}. \
-            The medical query will be delimited with \
-            {self.delimiter} characters.
-            Each question will have {len(self.responses)} possible answer options.\
-            provide the letter with the answer and a short sentence answering why the answer was selected. \
-            {self.extra_message}
+You will be provided with medical queries in this languages: {", ".join(self.languages)}. \
+The medical query will be delimited with {self.delimiter} characters.
+Each question will have {len(self.responses)} possible answer options.\
+provide the letter with the answer and a short sentence answering why the answer was selected. \
+{self.extra_message}
 
-            Provide your output in json format with the \
-            keys: {", ".join(self.output_keys)}.
+Provide your output in json format with the \
+keys: {", ".join(self.output_keys)}.
 
-            Responses: {", ".join(self.responses)}.
+Responses: {", ".join(self.responses)}.
 
             """
         else:
             self.system_message = f"""
-            You will be provided with medical queries in this languages: {", ".join(self.languages)}. \
-            The medical query will be delimited with \
-            {self.delimiter} characters.
-            Each question will have {len(self.responses)} possible answer options.\
-            provide the letter with the answer.
-            {self.extra_message}
+You will be provided with medical queries in this languages: {", ".join(self.languages)}. \
+The medical query will be delimited with {self.delimiter} characters.
+Each question will have {len(self.responses)} possible answer options.\
 
-            Provide your output in json format with the \
-            keys: {", ".join(self.output_keys)}.
+provide only the letter with the response.
+{self.extra_message}
 
-            Responses: {", ".join(self.responses)}.
-            
-            """
+Provide your output in json format with:
+
+the keys: {", ".join(self.output_keys)}.
+
+Responses: {", ".join(self.responses)}.
+
+E.g. if response is 'a', the output should be: {{"response" : "a"}}        
+"""
 
     # function to change the delimiter
     def change_delimiter(self, delimiter):
@@ -153,6 +155,8 @@ class GPT:
                 request_timeout=10
             )
         except:
+            # Could be due to TPM or RPM, so sleep one minute
+            time.sleep(61)
             response = self.get_completion_from_messages(prompt)
             return response
 
@@ -215,13 +219,13 @@ class GPT:
 # Create a class to handle the LLAMA 2
 class LLAMA:
     # build the constructor
-    def __init__(self, model='Llama-2-7b', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], path='data/Portuguese.csv', max_tokens=500):
+    def __init__(self, model='Llama-2-7b', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], path='data/Portuguese.csv', max_tokens=500, verbose=False):
         
         self.model = model
         model_path = self.download_hugging_face_model(model)
         
         from llama_cpp import Llama
-        self.llm = Llama(model_path=model_path)
+        self.llm = Llama(model_path=model_path, verbose=verbose)
         
         self.path = path
         

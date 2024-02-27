@@ -1,6 +1,7 @@
 ## Setup
 #### Load the libaries.
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
@@ -9,6 +10,7 @@ from collections import Counter
 import scipy.stats as stats
 import pandas as pd
 from scipy.stats import chi2_contingency
+import json
 
 
 # Define a dictionary to map Portuguese themes to English themes
@@ -44,11 +46,51 @@ theme_mapping = {
 
 ### Get Responses from text
 def get_response(response):
-    options = {'a)': 'a', 'b)':'b', 'c)': 'c', 'd)':'d'}
+    
+    # Initial check to see if response is a string and try to parse it as JSON
+    if isinstance(response, str):
+        try:
+            response = response.replace("'", '"')
+            response = json.loads(response)  # Attempt to parse the string as JSON
+        except json.JSONDecodeError:
+            # If JSON parsing fails, it's not a JSON string, so we just proceed with the response as is
+            pass
+
+    # If response is now a dictionary (either was initially or successfully parsed from a string)
+    if isinstance(response, dict):
+        if 'response' in response:
+            response = response['response']
+        # Look for a direct 'answer' key first
+        if 'answer' in response:
+            response = response['answer']
+        # If 'answer' key is not present, search for any key containing 'answer'
+        for key in response:
+            if 'answer' in key:
+                response = response[key]
+                
+    if response == {'a': 'falso', 'b': 'falso', 'c': 'falso', 'd': 'verdadero'}:
+        return 'd'
+    elif response == {'a': 'falso', 'b': 'falso', 'c': 'verdadero', 'd': 'falso'}:
+        return 'c'
+    elif response == {'a': 'falso', 'b': 'verdadero', 'c': 'falso', 'd': 'falso'}:
+        return 'b'
+    elif response == {'a': 'verdadero', 'b': 'falso', 'c': 'falso', 'd': 'falso'}:
+        return 'a'
+    else: 
+        response = str(response)
+    
+    if response.lower() in ['a', 'b', 'c', 'd']:
+        return response
+    
+    options = {'a)': 'a', 'b)':'b', 'c)': 'c', 'd)':'d', 'a,': 'a', 'b,':'b', 'c,': 'c', 'd,':'d', 'a.': 'a', 'b.':'b', 'c.': 'c', 'd.':'d'}
     
     for option in options.keys():
-        if option in response:
-            return options[option]
+        try:
+            if option in response:
+                return options[option]
+        except:
+            print(response)
+            return np.nan
     else:
         return response
 
@@ -162,12 +204,15 @@ def compare_total_matches(df, languages, model, temperature, n_repetitions):
     for bar in bars:
         height = bar.get_height()
         ax.annotate(f'{height}%', xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),
-                    textcoords="offset points", ha='center', va='bottom', fontsize=12)
+                    textcoords="offset points", ha='center', va='bottom', fontsize=16)
 
     # Add titles and labels
-    plt.xlabel('Language')
-    plt.ylabel('Total Matches (%)')
-    plt.title('Total Correct Answers by Language (%)')
+    plt.xlabel('Language', fontsize=18)
+    plt.ylabel('Total Matches (%)', fontsize=18)
+    plt.title(f'Total Correct Answers by Language(%)', fontsize=20)
+    
+    # Set the height of the x-values (tick labels) to 16
+    ax.set_xticklabels(languages, fontsize=16)
 
     # Customize the appearance
     ax.spines['top'].set_visible(False)
@@ -177,56 +222,43 @@ def compare_total_matches(df, languages, model, temperature, n_repetitions):
     plt.show()
 
 def compare_total_matches_by_group(matches_by_test, languages, model, temperature, n_repetitions):
-    
     aggregations = {f'match_{language}': 'sum' for language in languages}
     aggregations['Total'] = 'sum'
 
     matches_by_test_group = matches_by_test.groupby('theme').agg(aggregations).reset_index()
-    
+
     # Calculate the percentages for each language
     for language in languages:
         match_column = f'match_{language}'
         matches_by_test_group[f'responses_{language} (%)'] = round((matches_by_test_group[match_column] / matches_by_test_group['Total']) * 100, 2)
+
     matches_by_test_group.to_csv(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_by_theme_{model}.csv', index=False)
     
-    # Compare English and Portuguese matches by theme
+    # Plotting
     fig, ax = plt.subplots(figsize=(12, 8))
+    bar_width = 0.2  # Adjust bar width as needed
+    index = np.arange(len(matches_by_test_group['theme']))
+    offset = bar_width * len(languages) / 2
 
-    # Set the bar width
-    bar_width = 0.3
-
-    # Calculate the positions for the bars
-    bar_positions = range(len(matches_by_test_group['theme']))
-    bar_positions_language = [p + i * bar_width for p in bar_positions for i, _ in enumerate(languages)]
-
-
-    # Plot the matches per language
     for i, language in enumerate(languages):
-        #ax.bar(bar_positions, matches_by_test_group[F'match_{language}'], width=bar_width, label=language)
-        values = (matches_by_test_group[f'match_{language}'] / matches_by_test_group['Total']) * 100
-        ax.bar(
-            [p + i * bar_width for p in bar_positions],
-            values,
-            width=bar_width,
-            label=language
-        )
+        values = matches_by_test_group[f'responses_{language} (%)']
+        positions = [x + i * bar_width - offset for x in index]
+        ax.bar(positions, values, bar_width, label=language)
 
-    # Customize the plot
-    ax.set_xlabel('Theme')
-    ax.set_ylabel('Total Correct Answers (%)')
-    ax.set_title('Total Correct Answers by Theme (%)')
-    ax.set_xticks([p + (bar_width * (len(languages) - 1) / 2) for p in bar_positions])
+    ax.set_xlabel('Theme', fontsize=12)
+    ax.set_ylabel('Correct Answers (%)', fontsize=12)
+    ax.set_title('Correct Answers by Theme for Multiple Languages')
+    ax.set_xticks(index)
     ax.set_xticklabels(matches_by_test_group['theme'], rotation=45, ha='right')
-
-    # Add a legend
-    plt.legend(title='Language', loc='lower right')
+    ax.legend()
 
     plt.tight_layout()
-
     plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_by_theme_{model}.png', bbox_inches='tight')
     plt.show()
-
-
+    
+    
+    
+    
     for theme in matches_by_test['theme']:
         df_theme = matches_by_test[matches_by_test['theme'] == theme].groupby(['theme']).agg(aggregations).reset_index()
         
@@ -253,13 +285,15 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
             plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/correct_answers_{model}_{theme.replace("/", "-")}.png', bbox_inches='tight')
         plt.show()
 
+
+
         
 def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetitions):
     
-    ## Basic VS Clinical
+    # Basic VS Clinical
     test_labels = {
-    "Teórica I": "Basic Science",
-    "Teórica II": "Clinical/Surgical"
+        "Teórica I": "Basic Science",
+        "Teórica II": "Clinical/Surgical"
     }
 
     # Map the 'test' column to their labels
@@ -270,49 +304,37 @@ def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetiti
     aggregations['Total'] = 'sum'
 
     matches_by_test_group = matches_by_test.groupby('test_labels').agg(aggregations).reset_index()
-    print(matches_by_test_group)
-    
-    # Compare English and Portuguese matches by theme
+
+    # Plotting
     fig, ax = plt.subplots(figsize=(12, 8))
+    bar_width = 0.15  # Adjust bar width as needed
+    index = np.arange(len(matches_by_test_group['test_labels']))
+    offset = bar_width * len(languages) / 2
 
-    # Set the bar width
-    bar_width = 0.3
-
-    # Calculate the positions for the bars
-    bar_positions = range(len(matches_by_test_group['test_labels']))
-    bar_positions_language = [p + i * bar_width for p in bar_positions for i, _ in enumerate(languages)]
-
-
-    # Plot the matches per language
     for i, language in enumerate(languages):
-        #ax.bar(bar_positions, matches_by_test_group[F'match_{language}'], width=bar_width, label=language)
         values = round((matches_by_test_group[f'match_{language}'] / matches_by_test_group['Total']) * 100, 1)
-        ax.bar(
-            [p + i * bar_width for p in bar_positions],
-            round((matches_by_test_group[f'match_{language}']/matches_by_test_group['Total'])*100, 1),
-            width=bar_width,
-            label=language
-        )
+        positions = [x + i * bar_width - offset for x in index]
+        bars = ax.bar(positions, values, bar_width, label=language)
+        
         # Annotate the values over the bars
-        for p, value in zip([p + i * bar_width for p in bar_positions], values):
-            ax.text(p, value, str(value) + "%", ha='center', va='bottom')
+        for bar in bars:
+            height = bar.get_height()
+            ax.annotate(f'{height}%', xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3), textcoords="offset points",
+                        ha='center', va='bottom', fontsize=10)
 
+    ax.set_xlabel('Test Type', fontsize=14)
+    ax.set_ylabel('Total Correct Answers (%)', fontsize=14)
+    ax.set_title('Total Correct Answers by Test Type (%)', fontsize=16)
+    ax.set_xticks(index)
+    ax.set_xticklabels(matches_by_test_group['test_labels'], fontsize=12)
 
-    # Customize the plot
-    ax.set_xlabel('Theme')
-    ax.set_ylabel('Total Correct Answers (%)')
-    ax.set_title('Total Correct Answers by Test Type (%)')
-    ax.set_xticks([p + (bar_width * (len(languages) - 1) / 2) for p in bar_positions])
-    ax.set_xticklabels(matches_by_test_group['test_labels'], rotation=45, ha='right')
-
-    # Add a legend
-    plt.legend(title='Language', loc='lower right')
-
+    plt.legend(title='Language', loc='upper left', fontsize=10)
     plt.tight_layout()
 
     plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_by_type_{model}.png', bbox_inches='tight')
     plt.show()
-    
+
         
 
 def run_analysis(model, temperature, n_repetitions, languages):

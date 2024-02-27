@@ -9,6 +9,7 @@ from dotenv import load_dotenv, find_dotenv
 import argparse
 import re
 import subprocess
+import time
 
 
 ### Download LLAMA model:
@@ -27,13 +28,14 @@ def download_and_rename(url, filename):
     print(f'Done!')
 
 def download_hugging_face_model(model_version='Llama-2-7b'):
-    if model_version not in ['Llama-2-7b', 'Llama-2-13b', 'Llama-2-70b']:
-        raise ValueError("Options for Llama model should be 7b, 13b or 70b")
+    if model_version not in ['Llama-2-7b', 'Llama-2-13b', 'Llama-2-70b', 'Mistral-7b']:
+        raise ValueError("Options for Llama model should be 7b, 13b or 70b, or Mistral-7b")
 
     MODEL_URL = {
         'Llama-2-7b': 'https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q8_0.gguf', 
         'Llama-2-13b': 'https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q8_0.gguf', 
-        'Llama-2-70b': 'https://huggingface.co/TheBloke/Llama-2-70B-chat-GGUF/resolve/main/llama-2-70b-chat.Q5_0.gguf'
+        'Llama-2-70b': 'https://huggingface.co/TheBloke/Llama-2-70B-chat-GGUF/resolve/main/llama-2-70b-chat.Q5_0.gguf',
+        'Mistral-7b': 'https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q8_0.gguf'
     }
 
     MODEL_URL = MODEL_URL[model_version]
@@ -65,6 +67,7 @@ def get_completion_from_messages(messages,
             request_timeout=10
         )
     except:
+        time.sleep(60)
         response = get_completion_from_messages(messages, model=model, temperature=temperature, max_tokens=max_tokens)
         return response
 
@@ -87,7 +90,8 @@ def get_completion_from_messages_llama(messages,
     response = model.create_chat_completion(
         messages,
         temperature=temperature,
-        max_tokens=max_tokens)
+        max_tokens=max_tokens
+    )
     
     model.set_cache(None)
     
@@ -277,10 +281,10 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     if 'gpt' in model:
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
-    elif 'Llama-2' in model:                
+    elif 'Llama-2' in model or ('Mistral-7b' in model):                
         model_path = download_hugging_face_model(model_version=model)
         from llama_cpp import Llama
-        llm = Llama(model_path=model_path)
+        llm = Llama(model_path=model_path, verbose=False, n_ctx=2048)
     elif 'bloom':
         from transformers import pipeline
         llm = pipeline(
@@ -328,7 +332,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
             print(question)
             if 'gpt' in model: 
                 messages = generate_question(question, LANGUAGES, REASONING)
-            elif 'Llama-2' in model:
+            elif 'Llama-2' in model or ('Mistral-7b' in model):
                 messages = generate_question_llama(question, LANGUAGES, REASONING)
             elif 'bloom' in model:
                 messages = generate_template_text_generation(question, LANGUAGES)
@@ -343,7 +347,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                     response = get_completion_from_messages(messages, MODEL, TEMPERATURE)
                     # Convert the string into a JSON object
                     response = json.loads(response)
-                elif 'Llama-2' in model:
+                elif 'Llama-2' in model or ('Mistral-7b' in model):
                     response = get_completion_from_messages_llama(messages, llm, TEMPERATURE, reasoning=REASONING)
                 elif 'bloom' in model:
                     response = get_completion_from_messages_hf(messages, llm)
