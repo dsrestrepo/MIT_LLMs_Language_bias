@@ -321,15 +321,15 @@ def basic_vs_clinical(matches_by_test, languages, model, temperature, n_repetiti
             height = bar.get_height()
             ax.annotate(f'{height}%', xy=(bar.get_x() + bar.get_width() / 2, height),
                         xytext=(0, 3), textcoords="offset points",
-                        ha='center', va='bottom', fontsize=10)
+                        ha='center', va='bottom', fontsize=16)
 
-    ax.set_xlabel('Test Type', fontsize=14)
-    ax.set_ylabel('Total Correct Answers (%)', fontsize=14)
-    ax.set_title('Total Correct Answers by Test Type (%)', fontsize=16)
+    ax.set_xlabel('Test Type', fontsize=18)
+    ax.set_ylabel('Total Correct Answers (%)', fontsize=18)
+    ax.set_title('Total Correct Answers by Test Type (%)', fontsize=20)
     ax.set_xticks(index)
-    ax.set_xticklabels(matches_by_test_group['test_labels'], fontsize=12)
+    ax.set_xticklabels(matches_by_test_group['test_labels'], fontsize=18)
 
-    plt.legend(title='Language', loc='upper left', fontsize=10)
+    plt.legend(title='Language', loc='lower left', fontsize=20)
     plt.tight_layout()
 
     plt.savefig(f'results/results_{model}_Temperature{temperature}_Repetitions{n_repetitions}/matches_by_type_{model}.png', bbox_inches='tight')
