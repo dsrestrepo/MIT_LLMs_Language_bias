@@ -15,6 +15,16 @@ from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 from langchain.llms import LlamaCpp
 
+from langchain.agents import initialize_agent, Tool
+from langchain.tools import tool
+from langchain.agents import AgentType
+from langchain.agents.react.base import DocstoreExplorer
+
+#from langchain_community.tools.pubmed.tool import PubmedQueryRun
+from langchain.retrievers import PubMedRetriever
+from langchain.utilities import WikipediaAPIWrapper
+from langchain.tools import DuckDuckGoSearchRun
+
 #from langchain.globals import set_verbose
 
 #set_verbose(True)
@@ -66,60 +76,25 @@ def download_hugging_face_model(model_version='Llama-2-7b'):
 
     return model_path
 
-### Models:
 
 # Function to validate JSON format
-def is_valid_json(text, output_parser):
+def is_valid_json(text):
     try:
-        output_parser.parse(text)
+        json.loads(text)
         return True
     except:
         return False
 
-def get_completion_from_chain(chain, question, output_parser):
-    
-    #try:
-    #response = chain.predict_and_parse(question=question)
-    response = chain.run(question=question)
-    print("response")
-    print(response)
-    if is_valid_json(response, output_parser):
-        response = output_parser.parse(response)
-        return response
-    else:
-        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ': "a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower():
-            response = {'response': 'a'}
-        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ': "b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower():
-            response = {'response': 'b'}
-        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ': "c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower():
-            response = {'response': 'c'}
-        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ': "d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower():
-            response = {'response': 'd'}
-        
-        return response
-        #new_parser = OutputFixingParser.from_llm(parser=output_parser, llm=ChatOpenAI())
-        #response = new_parser.parse(response)
-        #print("response")
-        #print(response)
-        #return response
-
-    #except:
-    #    print("except")
-    #    response = get_completion_from_chain(chain, question, output_parser)
-    #    return response
-    #return response
-
 
 def get_completion_from_messages(messages, 
-                                 model,
-                                 output_parser):
+                                 model):
 
     #try:
-    response = model.invoke(messages)
+    response = model(messages)['output']
     print('response')
     print(response)
-    if is_valid_json(response, output_parser):
-        response = output_parser.parse(response)
+    if is_valid_json(response):
+        response = json.loads(response)
         return response
     else:
         if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ': "a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower():
@@ -133,50 +108,6 @@ def get_completion_from_messages(messages,
         
         return response
 
-    #except:
-    #    response = get_completion_from_messages(messages, model=model)
-    #    return response
-
-
-#### Template for the Questions
-def generate_prompt(LANGUAGES, REASONING, Responses=['A', 'B', 'C', 'D']):
-    
-    delimiter = "####"
-
-    languages_text = ", ".join(LANGUAGES)
-    
-    responses_text = ", ".join(Responses)
-
-    system_message = f"""You are an expert medical assistant.\
-You will be provided with medical queries in these languages: {languages_text}. \
-Answer the question as best as possible. 
-    """
-    
-    template = system_message + "\n{format_instructions}\n{question}"
-
-
-    response_schema = ResponseSchema(name="response",
-                                     description=f"This is the option of the correct response. Could be only any of these: {responses_text}")
-
-    if REASONING:
-        reasoning_schema = ResponseSchema(name="reasoning",
-                                    description="This is the reasons for the answer")
-        response_schemas = [response_schema, 
-                            reasoning_schema]
-    else:
-        response_schemas = [response_schema]        
-
-    output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
-
-    format_instructions = output_parser.get_format_instructions()
-    
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=["question"],
-        partial_variables={"format_instructions": format_instructions}
-    )
-    
-    return prompt, output_parser
 
 
 def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], llm_chain=False):
@@ -208,7 +139,79 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     N_REPETITIONS = n_repetitions # 1
     REASONING = reasoning # False
     LANGUAGES = languages # ['english', 'portuguese']
+    
+    ##### RAG:
+    
+    pubmed = PubMedRetriever()
+    wikipedia = WikipediaAPIWrapper()
+    search = DuckDuckGoSearchRun()
+    
+    @tool
+    def json_format(response: str) -> dict:
+        """Given the correct response's letter a, b, c or d; generates the output json. If input is not a, b, c or d, returns an error message."""
+        if response in ['a', 'b', 'c', 'd']:
+            return {"response": response}
+        else:
+            return "Error: response should be a, b, c or d."
+    
+    ##### Tools:
+    tools = [
+        Tool(
+            name = "Pubmed search",
+            func=pubmed.run,
+            description="useful for when you need to search for a medical topic, treatment or outcome on pubmed"
+        ),
+        Tool(
+            name = "JSON format",
+            func=json_format,
+            description="Given the correct response's letter a, b, c or d; generates the output json. If input is not a, b, c or d, returns an error message."
+        ),
+        Tool(
+            name='Wikipedia',
+            func= wikipedia.run,
+            description="Useful for when you need to look up an specific topic, object, or procedure on wikipedia"
+        ), 
+        Tool(
+            name='DuckDuckGo Search',
+            func= search.run,
+            description="Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input."
+        )
+    ]
 
+    ##### Agent:
+    react_agent = initialize_agent(tools, llm, agent="zero-shot-react-description", verbose=True, handle_parsing_errors="Check your output and make sure it is a JSON file with the key response and value a letter a, b, c, or d. Make sure you can parse that using Python")#AgentType.REACT_DOCSTORE, verbose=True)
+
+
+    prompt = '''
+Answer the following questions as best you can. You have access to the following tools:
+
+Pubmed search: useful for when you need to search for a medical topic, treatment or outcome on pubmed
+JSON format: Given the correct response's letter a, b, c or d; generates the output json. If input is not a, b, c or d, returns an error message.
+Wikipedia: Useful for when you need to look up an specific topic, object, or procedure on wikipedia
+DuckDuckGo Search: Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input.
+
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [Pubmed search, JSON format, Wikipedia, DuckDuckGo Search]. Don't use the same tool more than 3 times.
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat 4 times maximum, then you should answer the question)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question. The final answer should be a JSON object with the key "response" and the value being the letter a, b, c or d with the correct answer.
+
+Begin!
+
+Question: {input}
+Thought:{agent_scratchpad}
+    '''
+    
+    react_agent.agent.llm_chain.prompt.template = prompt
+    
+
+    ##### Experiments:
     if N_REPETITIONS <= 0 or (N_REPETITIONS != int(N_REPETITIONS)):
         print(f'N_REPETITIONS should be a positive integer, not {N_REPETITIONS}')
         print('N_REPETITIONS will be set to 1')
@@ -225,8 +228,6 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
 
         if REASONING:
             reasoning[language] = [[] for n in range(N_REPETITIONS)]
-            
-    prompt, output_parser = generate_prompt(LANGUAGES, REASONING)
 
 
     for row in range(df.shape[0]):
@@ -238,18 +239,11 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
             question = df[language][row]
             print('Question: ')
             print(question)
-            
-            if llm_chain:
-                chain = LLMChain(llm=llm, prompt=prompt)
-            else:
-                messages = prompt.format_prompt(question=question)
 
             for n in range(N_REPETITIONS): 
                 print(f'Test #{n}: ')
-                if llm_chain:
-                    response = get_completion_from_chain(chain, question, output_parser)
-                else:
-                    response = get_completion_from_messages(messages, llm, output_parser)
+                
+                response = get_completion_from_messages(question, react_agent)
 
                 print(response)
             
@@ -275,9 +269,9 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     if not os.path.exists('responses'):
         os.makedirs('responses')
     if N_REPETITIONS == 1:
-        df.to_csv(f"responses/{MODEL}_Temperature{str(TEMPERATURE).replace('.', '_')}.csv", index=False)
+        df.to_csv(f"responses/rag_{MODEL}_Temperature{str(TEMPERATURE).replace('.', '_')}.csv", index=False)
     else:
-        df.to_csv(f"responses/{MODEL}_Temperature{str(TEMPERATURE).replace('.', '_')}_{N_REPETITIONS}Repetitions.csv", index=False)
+        df.to_csv(f"responses/rag_{MODEL}_Temperature{str(TEMPERATURE).replace('.', '_')}_{N_REPETITIONS}Repetitions.csv", index=False)
 
 def main():
     # Add argparse code to handle command-line arguments
