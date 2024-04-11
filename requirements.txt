@@ -9,3 +9,6 @@ statsmodels==0.14.0
 llama_cpp_python==0.2.11
 transformers==4.30
 torch==2.1.0
+wikipedia==1.4.0
+xmltodict==0.13.0
+langchain==0.0.311
