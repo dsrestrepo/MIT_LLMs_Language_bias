@@ -12,3 +12,4 @@ torch==2.1.0
 wikipedia==1.4.0
 xmltodict==0.13.0
 langchain==0.0.311
+langchain-openai==0.1.14

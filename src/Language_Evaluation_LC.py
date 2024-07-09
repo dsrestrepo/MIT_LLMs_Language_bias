@@ -14,6 +14,7 @@ from langchain.prompts import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 from langchain.llms import LlamaCpp
+import numpy as np
 
 #from langchain.globals import set_verbose
 
@@ -41,20 +42,27 @@ def download_and_rename(url, filename):
     subprocess.run(["wget", "-q", "-O", filename, url])
     print(f'Done!')
 
-def download_hugging_face_model(model_version='Llama-2-7b'):
-    if model_version not in ['Llama-2-7b', 'Llama-2-13b', 'Llama-2-70b', 'Mistral-7b']:
-        raise ValueError("Options for Llama model should be 7b, 13b or 70b, or Mistral-7b")
+
+
+def download_hugging_face_model(model_version='Llama-2-7b', path=None):
+    if model_version not in ['Llama-2-7b', 'Llama-2-13b', 'Llama-2-70b', 'Llama-3-8b', 'Mistral-7b']:
+        raise ValueError("Options for Llama model should be llama-2 -7b, -13b or -70b; Mistral-7b; or llama-3 -8b")
 
     MODEL_URL = {
         'Llama-2-7b': 'https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q8_0.gguf', 
         'Llama-2-13b': 'https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q8_0.gguf', 
         'Llama-2-70b': 'https://huggingface.co/TheBloke/Llama-2-70B-chat-GGUF/resolve/main/llama-2-70b-chat.Q5_0.gguf',
-        'Mistral-7b': 'https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q8_0.gguf'
+        'Mistral-7b': 'https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q8_0.gguf',
+        'Llama-3-8b': 'https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF/resolve/main/Meta-Llama-3-8B-Instruct-Q8_0.gguf'
+        #'https://huggingface.co/bartowski/Meta-Llama-3-8B-Instruct-GGUF-old/resolve/main/Meta-Llama-3-8B-Instruct-Q6_K.gguf'
     }
 
     MODEL_URL = MODEL_URL[model_version]
 
     model_path = f'Models/{model_version}.gguf'
+
+    if path:
+        model_path = os.path.join(path, model_path)
 
     if os.path.exists(model_path):
         confirmation = input(f"The model file '{model_path}' already exists. Do you want to overwrite it? (yes/no): ").strip().lower()
@@ -65,6 +73,13 @@ def download_hugging_face_model(model_version='Llama-2-7b'):
     download_and_rename(MODEL_URL, model_path)
 
     return model_path
+
+
+
+
+
+
+
 
 ### Models:
 
@@ -87,15 +102,16 @@ def get_completion_from_chain(chain, question, output_parser):
         response = output_parser.parse(response)
         return response
     else:
-        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ': "a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower():
+        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ': "a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower() or "'response': 'a'" in response.lower() or "'response':'a'" in response.lower() or ": 'a'" in response.lower() or ":'a'" in response.lower() or "'response': a" in response.lower() or "'response':a" in response.lower():
             response = {'response': 'a'}
-        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ': "b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower():
+        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ': "b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower() or "'response': 'b'" in response.lower() or "'response':'b'" in response.lower() or ": 'b'" in response.lower() or ":'b'" in response.lower() or "'response': b" in response.lower() or "'response':b" in response.lower():
             response = {'response': 'b'}
-        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ': "c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower():
+        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ': "c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower() or "'response': 'c'" in response.lower() or "'response':'c'" in response.lower() or ": 'c'" in response.lower() or ":'c'" in response.lower() or "'response': c" in response.lower() or "'response':c" in response.lower():
             response = {'response': 'c'}
-        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ': "d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower():
+        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ': "d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower() or "'response': 'd'" in response.lower() or "'response':'d'" in response.lower() or ": 'd'" in response.lower() or ":'d'" in response.lower() or "'response': d" in response.lower() or "'response':d" in response.lower():
             response = {'response': 'd'}
-        
+        else:
+            response = {'response': np.nan}
         return response
         #new_parser = OutputFixingParser.from_llm(parser=output_parser, llm=ChatOpenAI())
         #response = new_parser.parse(response)
@@ -116,21 +132,27 @@ def get_completion_from_messages(messages,
 
     #try:
     response = model.invoke(messages)
+    # check if response is not a string
+    if not isinstance(response, str):
+        response = response.content
+        
+    
     print('response')
     print(response)
     if is_valid_json(response, output_parser):
         response = output_parser.parse(response)
         return response
     else:
-        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ': "a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower():
+        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ':"a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower() or "'response': 'a'" in response.lower() or "'response':'a'" in response.lower() or ": 'a'" in response.lower() or ":'a'" in response.lower() or "'response': a" in response.lower() or "'response':a" in response.lower():
             response = {'response': 'a'}
-        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ': "b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower():
+        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ':"b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower() or "'response': 'b'" in response.lower() or "'response':'b'" in response.lower() or ": 'b'" in response.lower() or ":'b'" in response.lower() or "'response': b" in response.lower() or "'response':b" in response.lower():
             response = {'response': 'b'}
-        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ': "c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower():
+        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ':"c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower() or "'response': 'c'" in response.lower() or "'response':'c'" in response.lower() or ": 'c'" in response.lower() or ":'c'" in response.lower() or "'response': c" in response.lower() or "'response':c" in response.lower():
             response = {'response': 'c'}
-        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ': "d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower():
+        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ':"d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower() or "'response': 'd'" in response.lower() or "'response':'d'" in response.lower() or ": 'd'" in response.lower() or ":'d'" in response.lower() or "'response': d" in response.lower() or "'response':d" in response.lower():
             response = {'response': 'd'}
-        
+        else:
+            response = {'response': np.nan}
         return response
 
     #except:
@@ -149,8 +171,9 @@ def generate_prompt(LANGUAGES, REASONING, Responses=['A', 'B', 'C', 'D']):
 
     system_message = f"""You are an expert medical assistant.\
 You will be provided with medical queries in these languages: {languages_text}. \
-Answer the question as best as possible. 
+Answer the question as best as possible.\
     """
+    #Always select an answer from the following options in a json with the defined format. Options: {responses_text}.
     
     template = system_message + "\n{format_instructions}\n{question}"
 
@@ -179,7 +202,9 @@ Answer the question as best as possible.
     return prompt, output_parser
 
 
-def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], llm_chain=False):
+def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], llm_chain=False, model_path=None, local=False):
+    
+    model_id = model
     
     # Load API key if GPT, or Model if LLAMA
     if 'gpt' in model:
@@ -187,23 +212,95 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
         openai.api_key  = os.environ['OPENAI_API_KEY']
         llm = OpenAI(temperature=temperature, model_name=model)
         
-    elif 'Llama-2' in model or ('Mistral-7b' in model):    
-        
-        model_path = download_hugging_face_model(model_version=model)
-        llm = LlamaCpp(
-            model_path=model_path,
-            temperature=temperature,
-            n_ctx=2048,
-            verbose=False,  # VERBOSE
-        )
-        
+    #elif 'Llama-2' in model or ('Mistral-7b' in model) or 'Llama-3' in model:    
+    #    
+    #    model_path = download_hugging_face_model(model_version=model, path=model_path)
+    #    llm = LlamaCpp(
+    #        model_path=model_path,
+    #        temperature=temperature,
+    #        n_ctx=2048,
+    #        verbose=False,  # VERBOSE
+    #    )
+    elif 'Llama-2' in model or ('Mistral' in model) or ('Llama-3' in model) or ('Mixtral' in model) or ('Qwen2' in model):
+        if local:
+            # Define your custom path
+            import os
+            os.environ['TRANSFORMERS_CACHE'] = '/scratch/liyues_root/liyues/chenweiw/hf_weigths/llama'
+            
+            from torch import cuda, bfloat16
+            import torch
+
+            import transformers
+            
+            from langchain.llms import HuggingFacePipeline
+            
+            # set quantization configuration to load large model with less GPU memory
+            # this requires the `bitsandbytes` library
+            bnb_config = transformers.BitsAndBytesConfig(
+                load_in_4bit=True,
+                #load_in_8bit=True,
+                bnb_4bit_quant_type='nf4',
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_compute_dtype=bfloat16,
+                #load_in_8bit_fp32_cpu_offload=True
+            )
+
+            # begin initializing HF items, need auth token for these
+            model_config = transformers.AutoConfig.from_pretrained(
+                model_id
+            )
+
+            model = transformers.AutoModelForCausalLM.from_pretrained(
+                model_id,
+                trust_remote_code=True,
+                config=model_config,
+                quantization_config=bnb_config,
+                device_map='auto',
+            )
+            
+            tokenizer = transformers.AutoTokenizer.from_pretrained(
+                model_id
+            )
+            
+            generate_text = transformers.pipeline(
+                model=model, tokenizer=tokenizer,
+                return_full_text=True,
+                task='text-generation',
+                do_sample=False,
+                repetition_penalty=1.1
+            )
+            
+            from langchain.llms import HuggingFacePipeline
+            llm = HuggingFacePipeline(pipeline=generate_text)
+        else:
+            import os
+            _ = load_dotenv(find_dotenv())
+            together_api_key = os.environ['Together_API_KEY']
+            from langchain_openai import ChatOpenAI
+
+            llm = ChatOpenAI(
+                openai_api_base="https://api.together.xyz",
+                api_key=together_api_key,
+                model=model_id,
+                temperature=temperature,
+            )
+            
+            #from langchain_together import ChatTogether
+            # choose from our 50+ models here: https://docs.together.ai/docs/inference-models
+            #llm = ChatTogether(
+            #    together_api_key=together_api_key,
+            #    model=model_id,
+            #    temperature=temperature,
+            #)
+            
+                
     else:
-        print('Model should be a GPT, Llama-2, or Mistral-7b model')
+        print('Model should be a GPT, Llama, Mistral or any model available in Open Ai or Toghether AI')
         return 0
     
     #### Load the Constants
     PATH = path # 'data/Portuguese.csv'
-    MODEL = model # "gpt-3.5-turbo"
+    MODEL = model_id # "gpt-3.5-turbo"
     TEMPERATURE = temperature # 0.0
     N_REPETITIONS = n_repetitions # 1
     REASONING = reasoning # False
@@ -243,6 +340,8 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                 chain = LLMChain(llm=llm, prompt=prompt)
             else:
                 messages = prompt.format_prompt(question=question)
+                if not('gpt') in model_id.lower():
+                    messages = messages.to_string()
 
             for n in range(N_REPETITIONS): 
                 print(f'Test #{n}: ')
@@ -274,6 +373,10 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
 
     if not os.path.exists('responses'):
         os.makedirs('responses')
+        
+    # Get the base name of the MODEL to remove any parent directories
+    MODEL = os.path.basename(MODEL)
+    
     if N_REPETITIONS == 1:
         df.to_csv(f"responses/{MODEL}_Temperature{str(TEMPERATURE).replace('.', '_')}.csv", index=False)
     else:

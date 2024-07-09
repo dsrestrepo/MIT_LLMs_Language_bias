@@ -95,15 +95,19 @@ def get_completion_from_messages(messages,
     print(response)
     if is_valid_json(response):
         response = json.loads(response)
+        
+        print('Loaded JSON response:')
+        print(response)
+        
         return response
     else:
-        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ': "a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower():
+        if '"response": "a"' in response.lower() or '"response":"a"' in response.lower() or ': "a"' in response.lower() or ':"a"' in response.lower() or '"response": a' in response.lower() or '"response":a' in response.lower() or ': a' in response.lower() or ':a' in response.lower() or "'response': 'a'" in response.lower() or "'response':'a'" in response.lower() or ": 'a'" in response.lower() or ":'a'" in response.lower() or "'response': a" in response.lower() or "'response':a" in response.lower():
             response = {'response': 'a'}
-        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ': "b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower():
+        elif '"response": "b"' in response.lower() or '"response":"b"' in response.lower() or ': "b"' in response.lower() or ':"b"' in response.lower() or '"response": b' in response.lower() or '"response":b' in response.lower() or ': b' in response.lower() or ':b' in response.lower() or "'response': 'b'" in response.lower() or "'response':'b'" in response.lower() or ": 'b'" in response.lower() or ":'b'" in response.lower() or "'response': b" in response.lower() or "'response':b" in response.lower():
             response = {'response': 'b'}
-        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ': "c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower():
+        elif '"response": "c"' in response.lower() or '"response":"c"' in response.lower() or ': "c"' in response.lower() or ':"c"' in response.lower() or '"response": c' in response.lower() or '"response":c' in response.lower() or ': c' in response.lower() or ':c' in response.lower() or "'response': 'c'" in response.lower() or "'response':'c'" in response.lower() or ": 'c'" in response.lower() or ":'c'" in response.lower() or "'response': c" in response.lower() or "'response':c" in response.lower():
             response = {'response': 'c'}
-        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ': "d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower():
+        elif '"response": "d"' in response.lower() or '"response":"d"' in response.lower() or ': "d"' in response.lower() or ':"d"' in response.lower() or '"response": d' in response.lower() or '"response":d' in response.lower() or ': d' in response.lower() or ':d' in response.lower() or "'response': 'd'" in response.lower() or "'response':'d'" in response.lower() or ": 'd'" in response.lower() or ":'d'" in response.lower() or "'response': d" in response.lower() or "'response':d" in response.lower():
             response = {'response': 'd'}
         
         return response
@@ -166,11 +170,11 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
             func=json_format,
             description="Given the correct response's letter a, b, c or d; generates the output json. If input is not a, b, c or d, returns an error message."
         ),
-        Tool(
-            name='Wikipedia',
-            func= wikipedia.run,
-            description="Useful for when you need to look up an specific topic, object, or procedure on wikipedia"
-        ), 
+        #Tool(
+        #    name='Wikipedia',
+        #    func= wikipedia.run,
+        #    description="Useful for when you need to look up an specific topic, object, or procedure on wikipedia"
+        #), 
         Tool(
             name='DuckDuckGo Search',
             func= search.run,
@@ -179,15 +183,16 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     ]
 
     ##### Agent:
-    react_agent = initialize_agent(tools, llm, agent="zero-shot-react-description", verbose=True, handle_parsing_errors="Check your output and make sure it is a JSON file with the key response and value a letter a, b, c, or d. Make sure you can parse that using Python")#AgentType.REACT_DOCSTORE, verbose=True)
+    react_agent = initialize_agent(tools, llm, agent="zero-shot-react-description", verbose=True, handle_parsing_errors="Check your output and make sure it is a JSON file with the key response and value a letter a, b, c, or d. Make sure you can parse that using Python", max_iterations=10)#AgentType.REACT_DOCSTORE, verbose=True)
 
-
+#Wikipedia: Useful for when you need to look up an specific topic, object, or procedure on wikipedia
+#Wikipedia
     prompt = '''
 Answer the following questions as best you can. You have access to the following tools:
 
 Pubmed search: useful for when you need to search for a medical topic, treatment or outcome on pubmed
 JSON format: Given the correct response's letter a, b, c or d; generates the output json. If input is not a, b, c or d, returns an error message.
-Wikipedia: Useful for when you need to look up an specific topic, object, or procedure on wikipedia
+
 DuckDuckGo Search: Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input.
 
 
@@ -195,11 +200,11 @@ Use the following format:
 
 Question: the input question you must answer
 Thought: you should always think about what to do
-Action: the action to take, should be one of [Pubmed search, JSON format, Wikipedia, DuckDuckGo Search]. Don't use the same tool more than 3 times.
+Action: the action to take, should be one of [Pubmed search, JSON format, DuckDuckGo Search]. Don't use the same tool more than 3 times.
 Action Input: the input to the action
 Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat 4 times maximum, then you should answer the question)
-Thought: I now know the final answer
+... (this Thought/Action/Action Input/Observation can repeat 4 times maximum, then you should answer the question. Don't iterate more than 4 times. Just provide a response to the question after that in the expected format.)
+Thought: I now know the final answer, or I reached the limit of iterations. I will provide the final answer now.
 Final Answer: the final answer to the original input question. The final answer should be a JSON object with the key "response" and the value being the letter a, b, c or d with the correct answer.
 
 Begin!
@@ -245,6 +250,7 @@ Thought:{agent_scratchpad}
                 
                 response = get_completion_from_messages(question, react_agent)
 
+                print(type(response))
                 print(response)
             
                 # Append to the list:

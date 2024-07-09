@@ -258,7 +258,6 @@ def compare_total_matches_by_group(matches_by_test, languages, model, temperatur
     
     
     
-    
     for theme in matches_by_test['theme']:
         df_theme = matches_by_test[matches_by_test['theme'] == theme].groupby(['theme']).agg(aggregations).reset_index()
         

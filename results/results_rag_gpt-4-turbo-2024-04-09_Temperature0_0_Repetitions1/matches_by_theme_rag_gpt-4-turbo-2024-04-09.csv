@@ -1,0 +1,26 @@
+theme,match_spanish,match_tagalog,match_portuguese,match_english,Total,responses_spanish (%),responses_tagalog (%),responses_portuguese (%),responses_english (%)
+anatomy,17,12,19,16,21,80.95,57.14,90.48,76.19
+contact lenses,2,2,1,2,3,66.67,66.67,33.33,66.67
+cornea,6,3,5,3,10,60.0,30.0,50.0,30.0
+cornea/lens,1,1,1,1,1,100.0,100.0,100.0,100.0
+embryology,2,1,1,2,2,100.0,50.0,50.0,100.0
+genetics,2,1,1,2,2,100.0,50.0,50.0,100.0
+glaucoma,5,7,7,7,9,55.56,77.78,77.78,77.78
+glaucoma/uveitis,0,1,0,1,1,0.0,100.0,0.0,100.0
+lens/cataract,4,5,4,6,8,50.0,62.5,50.0,75.0
+low vision,1,1,0,1,1,100.0,100.0,0.0,100.0
+neuro-ophthalmology,4,5,5,4,7,57.14,71.43,71.43,57.14
+ocular plastic surgery,12,11,14,13,16,75.0,68.75,87.5,81.25
+oncology,1,1,1,1,1,100.0,100.0,100.0,100.0
+oncology/ocular plastic surgery,1,2,1,1,3,33.33,66.67,33.33,33.33
+optics,1,1,1,0,1,100.0,100.0,100.0,0.0
+optics/refraction,1,1,1,1,1,100.0,100.0,100.0,100.0
+pharmacology,8,9,9,9,9,88.89,100.0,100.0,100.0
+pharmacology/glaucoma,1,1,1,1,1,100.0,100.0,100.0,100.0
+refraction,17,16,13,16,31,54.84,51.61,41.94,51.61
+refraction/low vision,0,1,0,0,2,0.0,50.0,0.0,0.0
+refractive surgery,2,2,2,2,2,100.0,100.0,100.0,100.0
+retina,9,9,9,11,12,75.0,75.0,75.0,91.67
+retina/oncology,1,1,1,1,1,100.0,100.0,100.0,100.0
+strabismus,5,6,6,6,11,45.45,54.55,54.55,54.55
+uveitis,4,3,5,6,8,50.0,37.5,62.5,75.0
