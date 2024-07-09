@@ -284,15 +284,6 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                 model=model_id,
                 temperature=temperature,
             )
-            
-            #from langchain_together import ChatTogether
-            # choose from our 50+ models here: https://docs.together.ai/docs/inference-models
-            #llm = ChatTogether(
-            #    together_api_key=together_api_key,
-            #    model=model_id,
-            #    temperature=temperature,
-            #)
-            
                 
     else:
         print('Model should be a GPT, Llama, Mistral or any model available in Open Ai or Toghether AI')
