@@ -16,6 +16,7 @@ from langchain.llms import OpenAI
 from langchain.llms import LlamaCpp
 import numpy as np
 
+
 #from langchain.globals import set_verbose
 
 #set_verbose(True)
@@ -208,9 +209,19 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     
     # Load API key if GPT, or Model if LLAMA
     if 'gpt' in model:
+        
+        import os
+        from langchain_openai import ChatOpenAI
+        
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
-        llm = OpenAI(temperature=temperature, model_name=model)
+        
+        llm = ChatOpenAI(
+                api_key=os.environ['OPENAI_API_KEY'],
+                model=model_id,
+                temperature=temperature,
+            )
+        #llm = OpenAI(temperature=temperature, model_name=model)
         
     #elif 'Llama-2' in model or ('Mistral-7b' in model) or 'Llama-3' in model:    
     #    
@@ -225,7 +236,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
         if local:
             # Define your custom path
             import os
-            os.environ['TRANSFORMERS_CACHE'] = '/scratch/liyues_root/liyues/chenweiw/hf_weigths/llama'
+            #os.environ['TRANSFORMERS_CACHE'] = '/home/username/.cache/huggingface'
             
             from torch import cuda, bfloat16
             import torch

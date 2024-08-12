@@ -53,25 +53,26 @@ def download_hugging_face_model(model_version='Llama-2-7b'):
     return model_path
 
 ### Model GPT:
-def get_completion_from_messages(messages, 
+def get_completion_from_messages(client,
+                                 messages, 
                                  model="gpt-3.5-turbo", 
                                  temperature=0, 
-                                 max_tokens=500):
+                                 max_tokens=600):
 
-    try:        
-        response = openai.ChatCompletion.create(
+    try:
+                
+        response = client.chat.completions.create(
             model=model,
             messages=messages,
             temperature=temperature, 
-            max_tokens=max_tokens,
-            request_timeout=10
+            max_tokens=max_tokens
         )
-    except:
+    except Exception as e:
+        print(f'Error: {e}')
         time.sleep(60)
-        response = get_completion_from_messages(messages, model=model, temperature=temperature, max_tokens=max_tokens)
+        response = get_completion_from_messages(client, messages, model=model, temperature=temperature, max_tokens=max_tokens)
         return response
-
-    return response.choices[0].message["content"]
+    return response.choices[0].message.content
 
 def get_completion_from_messages_hf(messages, 
                                     model):
@@ -279,6 +280,14 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
     if 'gpt' in model:
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
+        from openai import OpenAI
+
+        # Create a global variable for the OpenAI API
+        client = OpenAI(
+            # defaults to os.environ.get("OPENAI_API_KEY")
+            api_key=os.environ['OPENAI_API_KEY'],
+        )
+        
     elif 'Llama-2' in model or ('Mistral-7b' in model):                
         model_path = download_hugging_face_model(model_version=model)
         from llama_cpp import Llama
@@ -342,7 +351,7 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
                 print(f'Test #{n}: ')
                 
                 if 'gpt' in model: 
-                    response = get_completion_from_messages(messages, MODEL, TEMPERATURE)
+                    response = get_completion_from_messages(client, messages, MODEL, TEMPERATURE)
                     # Convert the string into a JSON object
                     response = json.loads(response)
                 elif 'Llama-2' in model or ('Mistral-7b' in model):

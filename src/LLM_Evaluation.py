@@ -16,9 +16,16 @@ class GPT:
     def __init__(self, model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], path='data/Portuguese.csv', max_tokens=500):
         
         import openai
+        from openai import OpenAI
         from dotenv import load_dotenv, find_dotenv
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
+        
+        # Create a global variable for the OpenAI API
+        self.client = OpenAI(
+            # defaults to os.environ.get("OPENAI_API_KEY")
+            api_key=os.environ['OPENAI_API_KEY'],
+        )
 
         self.path = path
         self.model = model
@@ -147,12 +154,11 @@ E.g. if response is 'a', the output should be: {{"response" : "a"}}
         messages = self.generate_question(prompt)
 
         try:        
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 temperature=self.temperature, 
-                max_tokens=self.max_tokens,
-                request_timeout=10
+                max_tokens=self.max_tokens
             )
         except:
             # Could be due to TPM or RPM, so sleep one minute
@@ -160,7 +166,7 @@ E.g. if response is 'a', the output should be: {{"response" : "a"}}
             response = self.get_completion_from_messages(prompt)
             return response
 
-        response = response.choices[0].message["content"]
+        response = response.choices[0].message.content
 
         # Convert the string into a JSON object
         response = json.loads(response)

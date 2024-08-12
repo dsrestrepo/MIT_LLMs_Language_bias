@@ -114,15 +114,24 @@ def get_completion_from_messages(messages,
 
 
 
-def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], llm_chain=False):
+def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', temperature=0.0, n_repetitions=1, reasoning=False, languages=['english', 'portuguese'], llm_chain=False, local=False):
     
     # Load API key if GPT, or Model if LLAMA
     if 'gpt' in model:
+        
+        import os
+        from langchain_openai import ChatOpenAI
+        
         _ = load_dotenv(find_dotenv()) # read local .env file
         openai.api_key  = os.environ['OPENAI_API_KEY']
-        llm = OpenAI(temperature=temperature, model_name=model)
+        #llm = OpenAI(temperature=temperature, model_name=model)
+        llm = ChatOpenAI(
+            api_key=os.environ['OPENAI_API_KEY'],
+            model=model,
+            temperature=temperature,
+        )
         
-    elif 'Llama-2' in model or ('Mistral-7b' in model):    
+    elif 'Llama-2' in model or ('Mistral-7b' in model) and local:    
         
         model_path = download_hugging_face_model(model_version=model)
         llm = LlamaCpp(
@@ -131,9 +140,22 @@ def llm_language_evaluation(path='data/Portuguese.csv', model='gpt-3.5-turbo', t
             n_ctx=2048,
             verbose=False,  # VERBOSE
         )
-        
+    
+    elif 'Llama-2' in model or ('Mistral' in model) or ('Llama-3' in model) or ('Mixtral' in model) or ('Qwen2' in model):
+        import os
+        _ = load_dotenv(find_dotenv())
+        together_api_key = os.environ['Together_API_KEY']
+        from langchain_openai import ChatOpenAI
+
+        llm = ChatOpenAI(
+            openai_api_base="https://api.together.xyz",
+            api_key=together_api_key,
+            model=model_id,
+            temperature=temperature,
+        )
+    
     else:
-        print('Model should be a GPT, Llama-2, or Mistral-7b model')
+        print('Model should be a GPT, Llama, Mistral or any model available in Open Ai or Toghether AI')
         return 0
     
     #### Load the Constants
@@ -203,7 +225,7 @@ Thought: you should always think about what to do
 Action: the action to take, should be one of [Pubmed search, JSON format, DuckDuckGo Search]. Don't use the same tool more than 3 times.
 Action Input: the input to the action
 Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat 4 times maximum, then you should answer the question. Don't iterate more than 4 times. Just provide a response to the question after that in the expected format.)
+... (this Thought/Action/Action Input/Observation can repeat 3 times maximum, then you should answer the question. Don't iterate more than 3 times. Just provide a response to the question after that in the expected format with the information you have avaiable.)
 Thought: I now know the final answer, or I reached the limit of iterations. I will provide the final answer now.
 Final Answer: the final answer to the original input question. The final answer should be a JSON object with the key "response" and the value being the letter a, b, c or d with the correct answer.
 

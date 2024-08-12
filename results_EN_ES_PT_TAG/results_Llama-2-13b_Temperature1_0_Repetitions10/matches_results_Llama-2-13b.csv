@@ -1,0 +1,31 @@
+test,year,theme,match_english,match_portuguese,Total
+Teórica I,2022,anatomy,4,5,21
+Teórica I,2022,cornea,1,1,1
+Teórica I,2022,embryology,0,1,2
+Teórica I,2022,genetics,0,0,2
+Teórica I,2022,glaucoma,1,0,1
+Teórica I,2022,oncology,1,0,1
+Teórica I,2022,pharmacology,2,1,3
+Teórica I,2022,refraction,1,2,12
+Teórica I,2022,retina,0,0,1
+Teórica II,2022,contact lenses,0,0,3
+Teórica II,2022,cornea,2,0,9
+Teórica II,2022,cornea/lens,1,0,1
+Teórica II,2022,glaucoma,3,2,8
+Teórica II,2022,glaucoma/uveitis,0,0,1
+Teórica II,2022,lens/cataract,3,5,8
+Teórica II,2022,low vision,1,1,1
+Teórica II,2022,neuro-ophthalmology,0,1,7
+Teórica II,2022,ocular plastic surgery,2,4,16
+Teórica II,2022,oncology/ocular plastic surgery,1,0,3
+Teórica II,2022,optics,0,1,1
+Teórica II,2022,optics/refraction,1,1,1
+Teórica II,2022,pharmacology,3,2,6
+Teórica II,2022,pharmacology/glaucoma,0,0,1
+Teórica II,2022,refraction,7,6,19
+Teórica II,2022,refraction/low vision,0,0,2
+Teórica II,2022,refractive surgery,1,2,2
+Teórica II,2022,retina,6,3,11
+Teórica II,2022,retina/oncology,0,0,1
+Teórica II,2022,strabismus,3,1,11
+Teórica II,2022,uveitis,3,2,8
