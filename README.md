@@ -111,3 +111,30 @@ This project is licensed under the MIT License.
 For any inquiries or questions regarding this project, please feel free to reach out:
 
 - **Email:** davidres@mit.edu
+
+## Cite
+
+[Seeing Beyond Borders: Evaluating LLMs in Multilingual Ophthalmological Question Answering](https://ieeexplore.ieee.org/abstract/document/10628549):
+
+@INPROCEEDINGS{10628549,
+  author={Restrepo, David and Nakayama, Luis Filipe and Dychiao, Robyn Gayle and Wu, Chenwei and McCoy, Liam G. and Artiaga, Jose Carlo and Cobanaj, Marisa and Matos, João and Gallifant, Jack and Bitterman, Danielle S. and Ferrer, Vincenz and Aphinyanaphongs, Yindalon and Anthony Celi, Leo},
+  booktitle={2024 IEEE 12th International Conference on Healthcare Informatics (ICHI)}, 
+  title={Seeing Beyond Borders: Evaluating LLMs in Multilingual Ophthalmological Question Answering}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={565-566},
+  keywords={Glaucoma;Large language models;Medical services;Documentation;Retina;Question answering (information retrieval);Ophthalmology;Large Language Models;Language Bias;Health Inequalities;LLMs Evaluation;Medical Board Exam},
+  doi={10.1109/ICHI61247.2024.00089}}
+
+[Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs](https://arxiv.org/abs/2412.14304):
+
+@misc{restrepo2024multiophthalinguamultilingualbenchmarkassessing,
+      title={Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs}, 
+      author={David Restrepo and Chenwei Wu and Zhengxu Tang and Zitao Shuai and Thao Nguyen Minh Phan and Jun-En Ding and Cong-Tinh Dao and Jack Gallifant and Robyn Gayle Dychiao and Jose Carlo Artiaga and André Hiroshi Bando and Carolina Pelegrini Barbosa Gracitelli and Vincenz Ferrer and Leo Anthony Celi and Danielle Bitterman and Michael G Morley and Luis Filipe Nakayama},
+      year={2024},
+      eprint={2412.14304},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2412.14304}, 
+}
