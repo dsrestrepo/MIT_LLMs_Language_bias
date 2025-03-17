@@ -129,6 +129,7 @@ For any inquiries or questions regarding this project, please feel free to reach
   doi={10.1109/ICHI61247.2024.00089}}
 ```
 
+Accepted to AAAI 2025
 [Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs](https://arxiv.org/abs/2412.14304):
 ```
 @misc{restrepo2024multiophthalinguamultilingualbenchmarkassessing,
@@ -141,3 +142,6 @@ For any inquiries or questions regarding this project, please feel free to reach
       url={https://arxiv.org/abs/2412.14304}, 
 }
 ```
+
+### You can also see:
+https://huggingface.co/datasets/AAAIBenchmark/Multi-Opthalingua
