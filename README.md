@@ -114,6 +114,21 @@ For any inquiries or questions regarding this project, please feel free to reach
 
 ## Cite
 
+Accepted to AAAI 2025 (https://openreview.net/group?id=AAAI.org/2025/Conference#tab-recent-activity)
+[Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs](https://arxiv.org/abs/2412.14304):
+```
+@misc{restrepo2024multiophthalinguamultilingualbenchmarkassessing,
+      title={Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs}, 
+      author={David Restrepo and Chenwei Wu and Zhengxu Tang and Zitao Shuai and Thao Nguyen Minh Phan and Jun-En Ding and Cong-Tinh Dao and Jack Gallifant and Robyn Gayle Dychiao and Jose Carlo Artiaga and André Hiroshi Bando and Carolina Pelegrini Barbosa Gracitelli and Vincenz Ferrer and Leo Anthony Celi and Danielle Bitterman and Michael G Morley and Luis Filipe Nakayama},
+      year={2024},
+      eprint={2412.14304},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2412.14304}, 
+}
+```
+
+Accepted to ICHI 2024 (https://www.nivi.io/all4health)
 [Seeing Beyond Borders: Evaluating LLMs in Multilingual Ophthalmological Question Answering](https://ieeexplore.ieee.org/abstract/document/10628549):
 
 ```
@@ -129,19 +144,6 @@ For any inquiries or questions regarding this project, please feel free to reach
   doi={10.1109/ICHI61247.2024.00089}}
 ```
 
-Accepted to AAAI 2025
-[Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs](https://arxiv.org/abs/2412.14304):
-```
-@misc{restrepo2024multiophthalinguamultilingualbenchmarkassessing,
-      title={Multi-OphthaLingua: A Multilingual Benchmark for Assessing and Debiasing LLM Ophthalmological QA in LMICs}, 
-      author={David Restrepo and Chenwei Wu and Zhengxu Tang and Zitao Shuai and Thao Nguyen Minh Phan and Jun-En Ding and Cong-Tinh Dao and Jack Gallifant and Robyn Gayle Dychiao and Jose Carlo Artiaga and André Hiroshi Bando and Carolina Pelegrini Barbosa Gracitelli and Vincenz Ferrer and Leo Anthony Celi and Danielle Bitterman and Michael G Morley and Luis Filipe Nakayama},
-      year={2024},
-      eprint={2412.14304},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2412.14304}, 
-}
-```
 
 ### You can also see:
 https://huggingface.co/datasets/AAAIBenchmark/Multi-Opthalingua
